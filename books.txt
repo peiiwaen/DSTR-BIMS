@@ -1,4 +1,5 @@
 Writing this to a file.
 Writing this to a file second line.
-The fault in our stars|351235323||19.99|10
-Adam and Eve|289423271||29.99|10|Non-Fiction
+Apple Bee|42313423|Sarah Jenkins|Penguin Publishing|39.90|20|Children's
+Jaku chara tomozaki-kun|432563262|Yuki Yaku|Yen Press|25.30|10|Romantic
+Sama sama|215235|dsagd e352|yen |18.20|0|COmed
