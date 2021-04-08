@@ -1,8 +1,9 @@
-Writing this to a file.
-Writing this to a file second line.
-Apple Bee|42313423|Sarah Jenkins|Penguin Publishing|39.90|20|Children's
-Jaku chara tomozaki-kun|432563262|Yuki Yaku|Yen Press|25.30|10|Romantic
-Sama sama|215235|dsagd e352|yen |18.20|0|COmed
-gdsfssf|423534|dfsdf fsd|fdsds|19.90|20|horror
-Aun Lin Thruong|3248321|Nguyuen|Nguyeun Publishing|19.90|20|Gei
-43872 dasjikj|23141|dfnskafk|43242|21.00|421|ok
+Software Architecture|392929|Siwa Kumar|Asia Pacific University|29.90|20|Horror
+9nkajd 3ksad|3981923|daisj dsoa|jfoiedo d|29.99|20|good
+3oo years|3283913|kual|ku lu|29.9910.00|10|comedy
+isadj dksam|421941|akokfod dl|mksdfj|29.00|5|comedy
+32ijf|4324923|kdf dfas|fre lfc|29.001.00|1|horror
+fjiisa|39214|jd sald|fje |18.00|1|jeijda
+oao 3|3219832|kkuk|u daskn|18.002.00|2|haha
+Guu Guu Gaa Gaa|31294219|Ni Ma|Ni Ba Publishing|69.69|10|Comedy
+Kkk saa|3291421|Lei Ma|Lei Ba|69.00|10|Horror
