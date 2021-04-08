@@ -1,9 +1,4 @@
-Software Architecture|392929|Siwa Kumar|Asia Pacific University|29.90|20|Horror
-9nkajd 3ksad|3981923|daisj dsoa|jfoiedo d|29.99|20|good
-3oo years|3283913|kual|ku lu|29.9910.00|10|comedy
-isadj dksam|421941|akokfod dl|mksdfj|29.00|5|comedy
-32ijf|4324923|kdf dfas|fre lfc|29.001.00|1|horror
-fjiisa|39214|jd sald|fje |18.00|1|jeijda
-oao 3|3219832|kkuk|u daskn|18.002.00|2|haha
-Guu Guu Gaa Gaa|31294219|Ni Ma|Ni Ba Publishing|69.69|10|Comedy
-Kkk saa|3291421|Lei Ma|Lei Ba|69.00|10|Horror
+Reset Your Day|2483912|Jasmine Pham|Minimalism Pubishing|23.00|20|Comedy|04/08/2021
+Why be Happy When You Could be Normal?|41293481|Jeanette Winterson|Happy Publishing |23.30|10|Fiction|04/08/2021
+The Coldest Girl in Coldtown|23139131|Holly Black|Penguin Publishing|60.00|2|Horror|04/08/2021
+The Signature of All Things|9277293|Elizabeth Gilbert|Elizabeth Publishing|60.0045.00|10|Theory|04/08/2021
