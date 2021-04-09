@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS //source: https://stackoverflow.com/questions/22450423/how-to-use-crt-secure-no-warnings (if not cant use localtime since its depreciated. Need to use localtime_s instead
+#define _CRT_SECURE_NO_WARNINGS 
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -31,7 +31,9 @@ public:
 	Books* next;
 };
 
-//////////////////////////// End of Book Struc ////////////////////////////
+
+
+//////////////////////////// End of Structures ////////////////////////////
 
 struct Books* head = NULL;
 
@@ -272,12 +274,12 @@ MainMenu:
 		////////////////////////////////// End of Inventory Section //////////////////////////////
 
 	case 2:
+
+		PurchaseMenu: 
 		cout << "*--------------- Purchase Section ---------------*" << endl;
 		cout << "Which section do you want to access:\n1. Add Purchase\n2. View All Purchase\n3. Sort Purchase\n4. View Purchase Detail\n5. Exit" << endl;
 		cout << "Enter choice: ";
 		cin >> choice;
-
-
 
 		while (choice < 1 || choice > 5)
 		{
@@ -286,8 +288,6 @@ MainMenu:
 			cout << "Enter choice: ";
 			cin >> choice;
 		}
-
-
 
 		switch (choice)
 		{
