@@ -13,7 +13,7 @@ using namespace std;
 struct Books {
 private:
 
-public:
+public:  
 	string title;
 	int ISBN;
 	string author;
@@ -181,7 +181,14 @@ void Books::displayList() {
 		cout << "*--------------------------------------------------*" << endl;
 		ptr = ptr->next;
 	}
-	cout << "Done displaying all books. There are a total of " << noBooks << " different books inside the database." <<endl;
+	if (noBooks != 0) {
+		cout << "Done displaying all books. There are a total of " << noBooks << " different books inside the database." << endl;
+	}
+	else {
+		cout << "There are no books inside the database. Please insert new book details." << endl;
+		
+	}
+
 }
 
 //////////////////////////// end of displayList ////////////////////////////
