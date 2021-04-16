@@ -25,7 +25,7 @@ public:
 	stringstream streambP;
 	void addBooks();
 	void readFromFileToList();
-	void readFromFileToArray();
+	//void readFromFileToArray();
 	void displayList();
 	void sortBooks();
 	string getDate();
