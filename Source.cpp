@@ -129,6 +129,8 @@ void Books::readFromFileToList() {
 			getline(ss, genre, '|');
 			getline(ss, date, '|');
 
+
+
 			//use new instead of malloc, if not wont be able to read string //checkout this source https://www.programmersought.com/article/87014391850/ 
 			//+ https://www.geeksforgeeks.org/new-vs-malloc-and-free-vs-delete-in-c/#:~:text=malloc()%3A%20It%20is%20a,%E2%80%9Cmalloc()%E2%80%9D%20does%20not.
 			/*struct Books* new_Book = (struct Books*)malloc(sizeof(struct Books));*/
@@ -192,7 +194,7 @@ void Books::displayList() {
 
 //////////////////////////// end of displayList ////////////////////////////
 
-void Books::readFromFileToArray() {
+void Books::sortBooks() {
 
 	ifstream booksFile("books.txt");
 
@@ -200,14 +202,13 @@ void Books::readFromFileToArray() {
 	string bPs;
 	string stocks;
 	int numberOfLines = 1;
-	int n = 8;
+	int numberOfCol = 8;
 	string line;
 
 
 	if (booksFile.is_open()) {
-		
-		int m = numberOfLines;
-		string** a = new string * [m];
+
+		string** a = new string * [numberOfLines];
 
 		while (getline(booksFile, line)) {
 			
@@ -221,12 +222,11 @@ void Books::readFromFileToArray() {
 			getline(ss, genre, '|');
 			getline(ss, date, '|');
 
-			
-			for (int i = 0; i < m; i++) {
-				a[i] = new string[n];
+			for (int i = 0; i < numberOfLines; i++) {
+				a[i] = new string[numberOfCol];
 			}
 
-			for (int i = 0; i < m; i++) {
+			for (int i = 0; i < numberOfLines; i++) {
 
 				a[i][0] = title;
 				a[i][1] = ISBNs;
@@ -239,12 +239,13 @@ void Books::readFromFileToArray() {
 
 			}
 
-			for (int i = 0; i < m; i++) {
-				for (int j = 0; j < n; j++) {
+			//if you want to check if it did write into the array 
+			/*for (int i = 0; i < numberOfLines; i++) {
+				for (int j = 0; j < numberOfCol; j++) {
 					cout << a[i][j] << "|";
 				}
 				cout << endl;
-			}
+			}*/
 
 		}
 
@@ -337,7 +338,7 @@ MainMenu:
 		case 4:
 			break;
 		case 5:
-			books.readFromFileToArray();
+			books.sortBooks();
 			break;
 		case 6:
 			goto MainMenu;
