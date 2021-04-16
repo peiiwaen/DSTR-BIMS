@@ -12,26 +12,29 @@ using namespace std;
 
 struct Books {
 private:
-
-public:  
 	string title;
 	int ISBN;
 	string author;
 	string publisher;
-	float bP;
+	float bP = 0.00;
 	string genre;
 	string date;
 	int stock = 0;
+public:  
 	ofstream booksFile;
 	stringstream streambP;
 	void addBooks();
-	void readFromFile();
+	void readFromFileToList();
+	void readFromFileToArray();
 	void displayList();
+	void sortBooks();
 	string getDate();
 	Books* next;
 };
 
+struct Purchase {
 
+};
 
 //////////////////////////// End of Structures ////////////////////////////
 
@@ -55,7 +58,7 @@ void Books::addBooks() {
 	//set new stream, set it to 2 dp, input double/float to stream, change stream to string
   //source code: http://www.cplusplus.com/reference/iomanip/setprecision/
 
-	cout << "*--------------- Add New Books --------------*" << endl; // 15s -, front and back
+	cout << "*--------------- Add New Books --------------*" << endl; // 15s -, front and back 
 
 	//solved. Ref: http://www.cplusplus.com/forum/beginner/39549/ (cin.ignore())
 	cin.ignore();
@@ -103,17 +106,13 @@ void Books::addBooks() {
 
 //////////////////////////// end of AddBook ////////////////////////////
 
-void Books::readFromFile() {
+void Books::readFromFileToList() {
 
 	ifstream booksFile("books.txt");
 
-	string titles;
 	string ISBNs;
-	string authors;
-	string publishers;
 	string bPs;
 	string stocks;
-	string genres;
 	
 	string line;
 
@@ -193,6 +192,74 @@ void Books::displayList() {
 
 //////////////////////////// end of displayList ////////////////////////////
 
+void Books::readFromFileToArray() {
+
+	ifstream booksFile("books.txt");
+
+	string ISBNs;
+	string bPs;
+	string stocks;
+	int numberOfLines = 1;
+	int n = 8;
+	string line;
+
+
+	if (booksFile.is_open()) {
+		
+		int m = numberOfLines;
+		string** a = new string * [m];
+
+		while (getline(booksFile, line)) {
+			
+			stringstream ss(line);
+			getline(ss, title, '|');
+			getline(ss, ISBNs, '|');
+			getline(ss, author, '|');
+			getline(ss, publisher, '|');
+			getline(ss, bPs, '|');
+			getline(ss, stocks, '|');
+			getline(ss, genre, '|');
+			getline(ss, date, '|');
+
+			
+			for (int i = 0; i < m; i++) {
+				a[i] = new string[n];
+			}
+
+			for (int i = 0; i < m; i++) {
+
+				a[i][0] = title;
+				a[i][1] = ISBNs;
+				a[i][2] = author;
+				a[i][3] = publisher;
+				a[i][4] = bPs;
+				a[i][5] = stocks;
+				a[i][6] = genre;
+				a[i][7] = date;
+
+			}
+
+			for (int i = 0; i < m; i++) {
+				for (int j = 0; j < n; j++) {
+					cout << a[i][j] << "|";
+				}
+				cout << endl;
+			}
+
+		}
+
+		booksFile.close();
+	}
+
+	else {
+		cout << "Fail to open file." << endl;
+	}
+
+}
+
+//////////////////////////// end of readFromFileToArray  ////////////////////////////
+
+
 int main() {
 
 	//declareables 
@@ -222,8 +289,8 @@ MainMenu:
 	switch (choice)
 	{
 	case 1:
-		
-		InventoryMenu:
+
+	InventoryMenu:
 		cout << "*--------------- Inventory Section ---------------*" << endl;
 		cout << "Which section do you want to access:\n1. Add Books\n2. View Books\n3. Search Books \n4. Filter Books\n5. Sort Books\n6. Main Menu" << endl;
 		cout << "Enter choice: ";
@@ -253,13 +320,13 @@ MainMenu:
 				cout << "*--------------------------------------------------*" << endl;
 				cout << "Would you like to add more books? \n1. Yes\n2. No\nEnter choice: ";
 				cin >> choice;
-				}
+			}
 
 			goto InventoryMenu;
 
 			break;
 		case 2:
-			books.readFromFile();
+			books.readFromFileToList();
 			books.displayList();
 			cout << "*--------------------------------------------------*" << endl;
 			cout << "Back to Inventory Menu" << endl;
@@ -270,6 +337,7 @@ MainMenu:
 		case 4:
 			break;
 		case 5:
+			books.readFromFileToArray();
 			break;
 		case 6:
 			goto MainMenu;
@@ -282,7 +350,7 @@ MainMenu:
 
 	case 2:
 
-		PurchaseMenu: 
+		//PurchaseMenu: 
 		cout << "*--------------- Purchase Section ---------------*" << endl;
 		cout << "Which section do you want to access:\n1. Add Purchase\n2. View All Purchase\n3. Sort Purchase\n4. View Purchase Detail\n5. Exit" << endl;
 		cout << "Enter choice: ";
@@ -307,14 +375,14 @@ MainMenu:
 		case 4:
 			break;
 		case 5:
-			goto MainMenu;
+
 			break;
 		}
 
 		break;
 
 		//////////////////////////// End of Purchase Section ////////////////////////////
-		
+
 	case 3:
 		cout << "*--------------------------------------------------*" << endl;
 		cout << "Are you sure you want to exit this program? \n1. Yes\n2. No" << endl;
