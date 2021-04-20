@@ -6,6 +6,7 @@
 #include <sstream>
 #include <ctime>
 #include <stdlib.h>
+#include <stack>
 using namespace std;
 
 //////////////////////////// End of top sections ////////////////////////////
@@ -13,7 +14,7 @@ using namespace std;
 struct Books {
 private:
 	string title;
-	int ISBN;
+	int ISBN = 0;
 	string author;
 	string publisher;
 	float bP = 0.00;
@@ -25,16 +26,32 @@ public:
 	stringstream streambP;
 	void addBooks();
 	void readFromFileToList();
-	//void readFromFileToArray();
 	void displayList();
 	void sortBooks();
-	string getDate();
 	Books* next;
 };
 
 struct Purchase {
-
+private:
+	int purchaseISBN = 0, purchaseQty = 0, typesOfBooks = 0;
+	float pricePerBook = 0.00, totalPricePerBook = 0.00, totalPriceNoTax = 0.00, tax = 0.00, totalFinalPrice = 0.00;
+	string purchaseDate, purchaseID = "PID-";
+	stack<int> booksISBNs;
+	stack<int> purchaseQuantity;
+	stack<string> booksPricePP;
+	stack<string> totalPricePP;
+public:
+	ofstream purchaseFile;
+	stringstream streampP;
+	stringstream streamtpPP;
+	stringstream totalPriceOfEachBooks;
+	stringstream totalFinal;
+	stringstream taxPrice;
+	string idIncrement();
+	void addPurchase();
+	Purchase* next;
 };
+
 
 //////////////////////////// End of Structures ////////////////////////////
 
@@ -44,7 +61,7 @@ struct Books* head = NULL;
 
 //source code: https://ideone.com/r3SlQL + https://stackoverflow.com/questions/27934034/get-current-time-in-mm-dd-yyyy-in-c
 
-string Books::getDate() {
+string getDate() {
 	const int MAXLEN = 80;
 	char s[MAXLEN];
 	time_t t = time(0);
@@ -128,8 +145,6 @@ void Books::readFromFileToList() {
 			getline(ss, stocks, '|');
 			getline(ss, genre, '|');
 			getline(ss, date, '|');
-
-
 
 			//use new instead of malloc, if not wont be able to read string //checkout this source https://www.programmersought.com/article/87014391850/ 
 			//+ https://www.geeksforgeeks.org/new-vs-malloc-and-free-vs-delete-in-c/#:~:text=malloc()%3A%20It%20is%20a,%E2%80%9Cmalloc()%E2%80%9D%20does%20not.
@@ -260,11 +275,180 @@ void Books::sortBooks() {
 
 //////////////////////////// end of readFromFileToArray  ////////////////////////////
 
+string Purchase::idIncrement() {
+
+	ifstream purchaseFile("purchases.txt");
+	string ID;
+	string IDConst;
+	string IDNumber;
+	int numberIncrement;
+	string finalID;
+	string newID;
+	string line;
+
+	if (purchaseFile.is_open()) {
+
+		if (purchaseFile.peek() == ifstream::traits_type::eof()) {
+
+			numberIncrement = 1;
+			finalID = to_string(numberIncrement);
+			newID = purchaseID + finalID;
+			return newID;
+
+		}
+		else {
+			while (getline(purchaseFile, line)) {
+				stringstream ss(line);
+				getline(ss, ID, '|');
+
+				stringstream ss2(ID);
+				getline(ss2, IDConst, '-');
+				getline(ss2, IDNumber, '-');
+			}
+
+			numberIncrement = stoi(IDNumber);
+			numberIncrement++;
+			finalID = to_string(numberIncrement);
+			newID = purchaseID + finalID;
+			return newID;
+		}
+
+	}
+
+}
+
+//////////////////////////// end of idIncrement  ////////////////////////////
+
+void Purchase::addPurchase() {
+
+	cout << "*--------------- Add New Purchase --------------*" << endl;
+
+	cout << "Enter total number of book types: ";
+	cin >> typesOfBooks;
+	while (typesOfBooks < 0) {
+		cout << "\nERROR! Value is negative!\nEnter total number of book types: ";
+		cin >> typesOfBooks;
+	}
+
+
+	for (int i = 0; i < typesOfBooks; i++) {
+		cout << "*--------------- Book " << i+1 << " --------------*" << endl;
+		cout << "Enter ISBN of book: ";
+		cin >> purchaseISBN;
+		booksISBNs.push(purchaseISBN);
+		cout << "Enter price of book: ";
+		cin >> pricePerBook;
+		streamtpPP << fixed << setprecision(2) << pricePerBook;
+		booksPricePP.push(streamtpPP.str());
+		cout << "Enter number of books purchased: ";
+		cin >> purchaseQty;
+			while (purchaseQty < 0)
+			{
+				cout << "\nERROR! Value is negative!\nEnter number of book purchased: ";
+				cin >> purchaseQty;
+			}
+		purchaseQuantity.push(purchaseQty);
+
+			//calculate total price of the book itself
+			totalPricePerBook = purchaseQty * pricePerBook;
+			totalPriceOfEachBooks << fixed << setprecision(2) << totalPricePerBook;
+			totalPricePP.push(totalPriceOfEachBooks.str());
+
+			//need to clear stringstream: https://stackoverflow.com/questions/20731/how-do-you-clear-a-stringstream-variable
+			totalPriceOfEachBooks.str(string());
+			streamtpPP.str(string());
+	}
+
+	string totalEachBook;
+	string booksBought;
+	string booksNumber;
+	string eachBookPrice;
+
+	//place data into string
+	while (!totalPricePP.empty()) {
+		//if size of stack is not 1 (not the last item) then add "," behind the item, if it is the last item, dont add
+		if (booksBought.size() > 1) {
+			booksBought = booksBought + to_string(booksISBNs.top());
+				booksISBNs.pop();
+		}
+		else {
+			booksBought = booksBought + to_string(booksISBNs.top()) + ",";
+		booksISBNs.pop();
+		}
+	
+		if (booksNumber.size() > 1) {
+			booksNumber = booksNumber + to_string(purchaseQuantity.top());
+			purchaseQuantity.pop();
+		}
+		else {
+			booksNumber = booksNumber + to_string(purchaseQuantity.top()) + ',';
+			purchaseQuantity.pop();
+		}
+		
+
+		if (totalEachBook.size() > 1) {
+			totalEachBook = totalEachBook + totalPricePP.top();
+			totalPriceNoTax = totalPriceNoTax + stof(totalPricePP.top());
+			totalPricePP.pop();
+		}
+		else {
+			totalEachBook = totalEachBook + totalPricePP.top() + ",";
+			totalPriceNoTax = totalPriceNoTax + stof(totalPricePP.top());
+			totalPricePP.pop();
+		}
+
+		if (eachBookPrice.size() > 1) {
+			eachBookPrice = eachBookPrice + booksPricePP.top();
+			booksPricePP.pop();
+		}
+		else {
+			eachBookPrice = eachBookPrice + booksPricePP.top() + ",";
+			booksPricePP.pop();
+		}
+		
+	}
+
+	//adding tax
+	tax = totalPriceNoTax * 0.06;
+	totalFinalPrice = tax + totalPriceNoTax;
+	
+	//Set the final price to 2 dc, then convert to string for storing
+	totalFinal << fixed << setprecision(2) << totalFinalPrice;
+	taxPrice << fixed << setprecision(2) << tax;
+	string finalPrice = totalFinal.str();
+	string finalTax = taxPrice.str();
+
+
+	//purchase date
+	purchaseDate = getDate();
+
+	string purchaseDetail = idIncrement() + "|" + booksBought + "|" + booksNumber + "|" + eachBookPrice +"|" + totalEachBook + "|" + finalTax + "|" + finalPrice + "|" + purchaseDate;
+	/*cout << purchaseDetail;*/
+
+	//append: write new line
+	purchaseFile.open("purchases.txt", ios::app);
+
+	//if file is open
+	if (purchaseFile.is_open()) {
+		purchaseFile << purchaseDetail << endl;
+
+		cout << "*--------------- Successfully added new purchase --------------*" << endl;
+
+		purchaseFile.close();
+	}
+	else {
+		cout << "Fail to open file." << endl;
+	}
+
+}
+
+//////////////////////////// end of addPurchase  ////////////////////////////
 
 int main() {
 
 	//declareables 
 	Books books;
+	Purchase purchase;
 
 	//Main Menu
 	int choice;
@@ -351,7 +535,7 @@ MainMenu:
 
 	case 2:
 
-		//PurchaseMenu: 
+		PurchaseMenu: 
 		cout << "*--------------- Purchase Section ---------------*" << endl;
 		cout << "Which section do you want to access:\n1. Add Purchase\n2. View All Purchase\n3. Sort Purchase\n4. View Purchase Detail\n5. Exit" << endl;
 		cout << "Enter choice: ";
@@ -368,6 +552,17 @@ MainMenu:
 		switch (choice)
 		{
 		case 1:
+			purchase.addPurchase();
+			cout << "*--------------------------------------------------*" << endl;
+			cout << "Would you like to add more purchase? \n1. Yes\n2. No\nEnter choice: ";
+			cin >> choice;
+			while (choice == 1) {
+				purchase.addPurchase();
+				cout << "*--------------------------------------------------*" << endl;
+				cout << "Would you like to add more books? \n1. Yes\n2. No\nEnter choice: ";
+				cin >> choice;
+			}
+			goto PurchaseMenu;
 			break;
 		case 2:
 			break;
@@ -376,7 +571,7 @@ MainMenu:
 		case 4:
 			break;
 		case 5:
-
+			goto MainMenu;
 			break;
 		}
 
