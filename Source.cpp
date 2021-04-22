@@ -28,6 +28,7 @@ public:
 	void readFromFileToList();
 	void displayList();
 	void sortBooks();
+	void deleteBooks();
 	Books* next;
 };
 
@@ -219,6 +220,7 @@ void Books::sortBooks() {
 	int numberOfLines = 1;
 	int numberOfCol = 8;
 	string line;
+	int lineCount = 0;
 
 
 	if (booksFile.is_open()) {
@@ -226,7 +228,7 @@ void Books::sortBooks() {
 		string** a = new string * [numberOfLines];
 
 		while (getline(booksFile, line)) {
-			
+
 			stringstream ss(line);
 			getline(ss, title, '|');
 			getline(ss, ISBNs, '|');
@@ -254,26 +256,161 @@ void Books::sortBooks() {
 
 			}
 
+			lineCount++;
+
 			//if you want to check if it did write into the array 
-			/*for (int i = 0; i < numberOfLines; i++) {
+			for (int i = 0; i < numberOfLines; i++) {
 				for (int j = 0; j < numberOfCol; j++) {
 					cout << a[i][j] << "|";
 				}
 				cout << endl;
-			}*/
+			}
 
 		}
 
-		booksFile.close();
+		cout << lineCount;
+
+	}
+}
+
+
+
+//////////////////////////// end of readFromFileToArray  ////////////////////////////
+
+void Books::deleteBooks() {
+
+	//create new file name tempBooks to store all the data that is not deletedw
+	ofstream tempBooksFile("tempBooks.txt");
+	//must close the file once it is done created
+	tempBooksFile.close();
+
+	ifstream booksFile("books.txt");
+	int deleteChoice;
+
+	int ISBNdelete;
+	string titleDelete;
+	string ISBNs;
+	string bPs;
+	string stocks;
+	string line;
+	int lineNo = 0;
+	string tempBookDetails;
+	bool yesDelete = false;
+
+	cout << "*--------------------------------------------------*" << endl;
+	cout << "Delete books by:\n1.ISBN\n2.Title of book\nEnter choice:" << endl;
+	cin >> deleteChoice;
+	cout << "*--------------------------------------------------*" << endl;
+	while (deleteChoice < 0 || deleteChoice > 2) {
+		cout << "Invalid value! Please enter correct delete choice:\n1.ISBN\n2.Title of book\nEnter choice:" << endl;
+		cin >> deleteChoice;
+		cout << "*--------------------------------------------------*" << endl;
+	}
+
+	switch (deleteChoice) {
+	case 1:
+		cout << "Enter ISBN of the book to be deleted: "; //to be removed to
+		cin >> ISBNdelete; // if this is from search book, replace this line with ISBNdelete = ISBNsearch (search value of ISBN)
+		break;
+	case 2:
+		cout << "Enter title of the book to be deleted: "; //to be removed to
+		cin.ignore();
+		getline(cin, titleDelete);
+		break;
+	}
+
+	if (booksFile.is_open()) {
+
+		while (getline(booksFile, line)) {
+			stringstream ss(line);
+			getline(ss, title, '|');
+			getline(ss, ISBNs, '|');
+			getline(ss, author, '|');
+			getline(ss, publisher, '|');
+			getline(ss, bPs, '|');
+			getline(ss, stocks, '|');
+			getline(ss, genre, '|');
+			getline(ss, date, '|'); 
+
+			//starts checking if book to be deleted matches with the data of the row
+			if (deleteChoice == 1) {
+				if (ISBNdelete != stoi(ISBNs)) {
+					if (lineNo == 0) {
+						tempBooksFile.open("tempBooks.txt");
+						tempBooksFile << line << endl;
+						tempBooksFile.close();
+					}
+					else {
+						//append: write new line
+						tempBooksFile.open("tempBooks.txt", ios::app);
+						//if file is open
+						if (tempBooksFile.is_open()) {
+							tempBooksFile << line << endl;
+							tempBooksFile.close();
+						}
+						else {
+							cout << "Fail to open file." << endl;
+						}
+					}
+				}
+				else {
+					yesDelete = true;
+				}
+			}
+			else {
+				if (titleDelete != title) {
+					if (lineNo == 0) {
+						tempBooksFile.open("tempBooks.txt");
+						tempBooksFile << line << endl;
+						tempBooksFile.close();
+					}
+					else {
+						//append: write new line
+						tempBooksFile.open("tempBooks.txt", ios::app);
+						//if file is open
+						if (tempBooksFile.is_open()) {
+							tempBooksFile << line << endl;
+							tempBooksFile.close();
+						}
+						else {
+							cout << "Fail to open file." << endl;
+						}
+					}
+				}
+				else {
+					yesDelete = true;
+				}
+			}
+			lineNo++;
+		}
+
+		// end of while
 	}
 
 	else {
-		cout << "Fail to open file." << endl;
+		cout << "Fail to open books file." << endl;
 	}
 
-}
+	booksFile.close();
+	tempBooksFile.close();
 
-//////////////////////////// end of readFromFileToArray  ////////////////////////////
+	//check if it needs to delete old file and rename new file (when book is deleted) or delete tempFile if there data remains the same
+	if (yesDelete == true) {
+		remove("books.txt");
+			cout << "*--------------- Successfully deleted book --------------*" << endl;
+		rename("tempBooks.txt", "books.txt");
+	}
+	else {
+		//maybe not true
+		cout << "*Failed to delete book. No book with matching ISBN or title is found*" << endl;
+		remove("tempBooks.txt");
+	}
+	
+
+}
+ 
+
+//////////////////////////// end of deleteBooks  ////////////////////////////
 
 string Purchase::idIncrement() {
 
@@ -300,7 +437,7 @@ string Purchase::idIncrement() {
 			while (getline(purchaseFile, line)) {
 				stringstream ss(line);
 				getline(ss, ID, '|');
-
+				//PID-1
 				stringstream ss2(ID);
 				getline(ss2, IDConst, '-');
 				getline(ss2, IDNumber, '-');
@@ -364,45 +501,46 @@ void Purchase::addPurchase() {
 	string booksNumber;
 	string eachBookPrice;
 
+
 	//place data into string
 	while (!totalPricePP.empty()) {
 		//if size of stack is not 1 (not the last item) then add "," behind the item, if it is the last item, dont add
-		if (booksBought.size() > 1) {
-			booksBought = booksBought + to_string(booksISBNs.top());
-				booksISBNs.pop();
+		if (booksISBNs.size() != 1) {
+			booksBought = booksBought + to_string(booksISBNs.top()) + ",";
+			booksISBNs.pop();
 		}
 		else {
-			booksBought = booksBought + to_string(booksISBNs.top()) + ",";
+			booksBought = booksBought + to_string(booksISBNs.top());
 		booksISBNs.pop();
 		}
 	
-		if (booksNumber.size() > 1) {
-			booksNumber = booksNumber + to_string(purchaseQuantity.top());
+		if (purchaseQuantity.size() != 1) {
+			booksNumber = booksNumber + to_string(purchaseQuantity.top()) + ',';
 			purchaseQuantity.pop();
 		}
 		else {
-			booksNumber = booksNumber + to_string(purchaseQuantity.top()) + ',';
+			booksNumber = booksNumber + to_string(purchaseQuantity.top());
 			purchaseQuantity.pop();
 		}
 		
 
-		if (totalEachBook.size() > 1) {
-			totalEachBook = totalEachBook + totalPricePP.top();
-			totalPriceNoTax = totalPriceNoTax + stof(totalPricePP.top());
-			totalPricePP.pop();
-		}
-		else {
+		if (totalPricePP.size() != 1) {
 			totalEachBook = totalEachBook + totalPricePP.top() + ",";
 			totalPriceNoTax = totalPriceNoTax + stof(totalPricePP.top());
 			totalPricePP.pop();
 		}
+		else {
+			totalEachBook = totalEachBook + totalPricePP.top();
+			totalPriceNoTax = totalPriceNoTax + stof(totalPricePP.top());
+			totalPricePP.pop();
+		}
 
-		if (eachBookPrice.size() > 1) {
-			eachBookPrice = eachBookPrice + booksPricePP.top();
+		if (booksPricePP.size() != 1) {
+			eachBookPrice = eachBookPrice + booksPricePP.top() + ',';
 			booksPricePP.pop();
 		}
 		else {
-			eachBookPrice = eachBookPrice + booksPricePP.top() + ",";
+			eachBookPrice = eachBookPrice + booksPricePP.top();
 			booksPricePP.pop();
 		}
 		
@@ -518,6 +656,7 @@ MainMenu:
 			goto InventoryMenu;
 			break;
 		case 3:
+			books.deleteBooks();
 			break;
 		case 4:
 			break;
