@@ -283,16 +283,8 @@ void Books::sortBooks() {
 
 void Books::deleteBooks() {
 
-	//create new file name tempBooks to store all the data that is not deletedw
-	ofstream tempBooksFile("tempBooks.txt");
-	//must close the file once it is done created
-	tempBooksFile.close();
-
-	ifstream booksFile("books.txt");
 	int deleteChoice;
 
-	int ISBNdelete;
-	string titleDelete;
 	string ISBNs;
 	string bPs;
 	string stocks;
@@ -302,28 +294,25 @@ void Books::deleteBooks() {
 	bool yesDelete = false;
 
 	cout << "*--------------------------------------------------*" << endl;
-	cout << "Delete books by:\n1.ISBN\n2.Title of book\nEnter choice:" << endl;
+	cout << "Are you sure you want to delete this book?\n1.Yes\n2.No\nEnter choice:" << endl;
 	cin >> deleteChoice;
 	cout << "*--------------------------------------------------*" << endl;
 	while (deleteChoice < 0 || deleteChoice > 2) {
-		cout << "Invalid value! Please enter correct delete choice:\n1.ISBN\n2.Title of book\nEnter choice:" << endl;
+		cout << "Invalid value! Please enter correct delete choice:\n1.Yes\n2.No\nEnter choice:" << endl;
 		cin >> deleteChoice;
 		cout << "*--------------------------------------------------*" << endl;
 	}
 
-	switch (deleteChoice) {
-	case 1:
-		cout << "Enter ISBN of the book to be deleted: "; //to be removed to
-		cin >> ISBNdelete; // if this is from search book, replace this line with ISBNdelete = ISBNsearch (search value of ISBN)
-		break;
-	case 2:
-		cout << "Enter title of the book to be deleted: "; //to be removed to
-		cin.ignore();
-		getline(cin, titleDelete);
-		break;
-	}
+	if (deleteChoice == 1) {
 
-	if (booksFile.is_open()) {
+		//create new file name tempBooks to store all the data that is not deleted
+		ofstream tempBooksFile("tempBooks.txt");
+		//must close the file once it is done created
+		tempBooksFile.close();
+
+		ifstream booksFile("books.txt");
+
+		if (booksFile.is_open()) {
 
 		while (getline(booksFile, line)) {
 			stringstream ss(line);
@@ -334,11 +323,10 @@ void Books::deleteBooks() {
 			getline(ss, bPs, '|');
 			getline(ss, stocks, '|');
 			getline(ss, genre, '|');
-			getline(ss, date, '|'); 
+			getline(ss, date, '|');
 
 			//starts checking if book to be deleted matches with the data of the row
-			if (deleteChoice == 1) {
-				if (ISBNdelete != stoi(ISBNs)) {
+				if (ISBN != stoi(ISBNs)) {
 					if (lineNo == 0) {
 						tempBooksFile.open("tempBooks.txt");
 						tempBooksFile << line << endl;
@@ -360,55 +348,40 @@ void Books::deleteBooks() {
 				else {
 					yesDelete = true;
 				}
-			}
-			else {
-				if (titleDelete != title) {
-					if (lineNo == 0) {
-						tempBooksFile.open("tempBooks.txt");
-						tempBooksFile << line << endl;
-						tempBooksFile.close();
-					}
-					else {
-						//append: write new line
-						tempBooksFile.open("tempBooks.txt", ios::app);
-						//if file is open
-						if (tempBooksFile.is_open()) {
-							tempBooksFile << line << endl;
-							tempBooksFile.close();
-						}
-						else {
-							cout << "Fail to open file." << endl;
-						}
-					}
-				}
-				else {
-					yesDelete = true;
-				}
-			}
+	
 			lineNo++;
 		}
-
+		tempBooksFile.close();
 		// end of while
 	}
-
-	else {
-		cout << "Fail to open books file." << endl;
-	}
+		else {
+			cout << "Failed to open book" << endl;
+		}
+}
 
 	booksFile.close();
-	tempBooksFile.close();
 
-	//check if it needs to delete old file and rename new file (when book is deleted) or delete tempFile if there data remains the same
 	if (yesDelete == true) {
 		remove("books.txt");
-			cout << "*--------------- Successfully deleted book --------------*" << endl;
 		rename("tempBooks.txt", "books.txt");
+		cout << "*--------------- Successfully deleted book. ---------------*" << endl;
 	}
 	else {
-		//maybe not true
-		cout << "*Failed to delete book. No book with matching ISBN or title is found*" << endl;
-		remove("tempBooks.txt");
+		cout << "Deletion of book cancelled" << endl;
 	}
+	
+
+	//check if it needs to delete old file and rename new file (when book is deleted) or delete tempFile if there data remains the same
+	//if (yesDelete == true) {
+	//	remove("books.txt");
+	//		cout << "*--------------- Successfully deleted book --------------*" << endl;
+	//	rename("tempBooks.txt", "books.txt");
+	//}
+	//else {
+	//	//maybe not true
+	//	cout << "**" << endl;
+	//	remove("tempBooks.txt");
+	//}
 	
 
 }
@@ -451,8 +424,8 @@ void Books::searchBooks()
 			else {
 				cout << "*--------------- Book Found! ---------------*" << endl;
 				cout << ptr->title << "|" << ptr->ISBN << "|" << ptr->author << "|" << ptr->publisher << "|" << ptr->bP << "|" << ptr->stock << "|" << ptr->genre << "|" << ptr->date << endl;
+				ISBN = ptr->ISBN;
 				searchFound = true;
-				title = T;
 				ptr = NULL;
 			}
 		}
@@ -468,7 +441,7 @@ void Books::searchBooks()
 			else {
 				cout << "*--------------- Book Found! ---------------*" << endl;
 				cout << ptr->title << "|" << ptr->ISBN << "|" << ptr->author << "|" << ptr->publisher << "|" << ptr->bP << "|" << ptr->stock << "|" << ptr->genre << "|" << ptr->date << endl;
-				ISBN = I;
+				ISBN = ptr->ISBN;
 				searchFound = true;
 				ptr = NULL;
 			}
