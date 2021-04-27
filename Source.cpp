@@ -7,7 +7,7 @@
 #include <ctime>
 #include <stdlib.h>
 #include <stack>
-using namespace std; /aaaaa
+using namespace std;
 
 //////////////////////////// End of top sections ////////////////////////////
 
