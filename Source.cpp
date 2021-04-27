@@ -30,6 +30,10 @@ public:
 	void sortBooks();
 	void deleteBooks();
 	Books* next;
+	bool searchFound = false, genreFound = false;
+	void searchBooks();
+	void filterBooks();
+	void updateBooks();
 };
 
 struct Purchase {
@@ -408,9 +412,104 @@ void Books::deleteBooks() {
 	
 
 }
- 
 
 //////////////////////////// end of deleteBooks  ////////////////////////////
+
+void Books::searchBooks()
+{
+	int searchType, I;
+	string T;
+	cout << "*--------------- Search Book ---------------*\nEnter the category you would like to search for book:\n1. Title\n2. ISBN\n3. Exit\nEnter your choice: ";
+	cin >> searchType;
+	cout << "*--------------------------------------------------*" << endl;
+
+	//Validation
+	while (searchType < 1 || searchType > 3)
+	{
+		cout << "ERROR! Value entered is out of bound!\n*--------------- Search Book ---------------*\nEnter the category you would like to search for book:\n1. Title\n2. ISBN\n3. Exit\nEnter your choice: ";
+		cin >> searchType;
+		cout << "*--------------------------------------------------*" << endl;
+	}
+
+	if (searchType == 3) { /*main()*/ }
+
+	//readFromFileToList() function done, so directly access the link list
+	struct Books* ptr = head;
+
+	switch (searchType)
+	{
+	case 1:
+		cout << "Enter the title of book to search: ";
+		cin.ignore();
+		getline(cin, T);
+		while (ptr != NULL)
+		{
+			if (ptr->title != T)
+			{
+				ptr = ptr->next;
+			}
+			else {
+				cout << "*--------------- Book Found! ---------------*" << endl;
+				cout << ptr->title << "|" << ptr->ISBN << "|" << ptr->author << "|" << ptr->publisher << "|" << ptr->bP << "|" << ptr->stock << "|" << ptr->genre << "|" << ptr->date << endl;
+				searchFound = true;
+				title = T;
+				ptr = NULL;
+			}
+		}
+		break;
+	case 2:
+		cout << "Enter the ISBN of book to search: ";
+		cin >> I;
+		while (ptr != NULL)
+		{
+			if (ptr->ISBN != I) {
+				ptr = ptr->next;
+			}
+			else {
+				cout << "*--------------- Book Found! ---------------*" << endl;
+				cout << ptr->title << "|" << ptr->ISBN << "|" << ptr->author << "|" << ptr->publisher << "|" << ptr->bP << "|" << ptr->stock << "|" << ptr->genre << "|" << ptr->date << endl;
+				ISBN = I;
+				searchFound = true;
+				ptr = NULL;
+			}
+		}
+
+
+		break;
+	}
+
+}
+
+//////////////////////////// end of searchBooks ////////////////////////////
+
+void Books::filterBooks()
+{
+	int filterType;
+	string G;
+	cout << "*--------------- Filter Book ---------------*\nEnter the genre of books you would like to filter: ";
+	cin.ignore();
+	getline(cin, G);
+	cout << endl;
+
+	//readFromFileToList() function done, so directly access the link list
+	struct Books* ptr = head;
+	while (ptr != NULL)
+	{
+		if (ptr->genre == G)
+		{
+			cout << ptr->title << "|" << ptr->ISBN << "|" << ptr->author << "|" << ptr->publisher << "|" << ptr->bP << "|" << ptr->stock << "|" << ptr->genre << "|" << ptr->date << endl;
+			cout << "*--------------------------------------------------*" << endl;
+			genreFound = true;
+			ptr = ptr->next;
+			
+		}
+		else {
+			ptr = ptr->next;
+		}
+	}
+}
+
+//////////////////////////// end of filterBooks ////////////////////////////
 
 string Purchase::idIncrement() {
 
@@ -656,9 +755,57 @@ MainMenu:
 			goto InventoryMenu;
 			break;
 		case 3:
-			books.deleteBooks();
+			books.readFromFileToList();
+			books.searchBooks();
+			if (books.searchFound == true)
+			{
+				cout << "*--------------------------------------------------*" << endl;
+				cout << "Would you like to update or delete this book?\n1. Update\n2. Delete\n3. Exit\nEnter choice: ";
+				cin >> choice;
+
+				//Validate
+				while (choice < 1 || choice > 3)
+				{
+					cout << "ERROR! Value entered is out of bound!\n\nWould you like to update or delete this book?\n1. Update\n2. Delete\n3. Exit\nEnter choice: ";
+					cin >> choice;
+				}
+
+				//Switch case
+				switch (choice)
+				{
+				case 1:
+				/*	books.updateBooks();*/
+					cout << "*--------------------------------------------------*" << endl;
+					goto InventoryMenu;
+					break;
+				case 2:
+					books.deleteBooks();
+					cout << "*--------------------------------------------------*" << endl;
+					goto InventoryMenu;
+					break;
+				case 3:
+					goto InventoryMenu;
+					break;
+				}
+			}
+			else
+			{
+				cout << "*--------------------------------------------------*" << endl;
+				cout << "ERROR! Book not found!\nWould you like to add this new book?\n1. Yes\n2. No\nEnter choice: ";
+				cin >> choice;
+				if (choice == 1)
+				{
+					books.addBooks();
+					cout << "*--------------------------------------------------*" << endl;
+				}
+				goto InventoryMenu;
+			}
 			break;
 		case 4:
+			books.readFromFileToList();
+			books.filterBooks();
+			if (books.genreFound == false) { cout << "ERROR! Genre not found!\n*--------------------------------------------------*" << endl; }
+			goto InventoryMenu;
 			break;
 		case 5:
 			books.sortBooks();
