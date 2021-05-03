@@ -14,14 +14,7 @@ using namespace std;
 
 struct Books {
 private:
-	string title;
-	int ISBN = 0;
-	string author;
-	string publisher;
-	float bP = 0.00;
-	string genre;
-	string date;
-	int stock = 0;
+
 public:  
 	ofstream booksFile;
 	stringstream streambP;
@@ -35,10 +28,22 @@ public:
 	void searchBooks();
 	void filterBooks();
 	void updateBooks();
+	void deductBooks(string i, int p);
+	void clearBookList();
+	int lineCount;
+	string title;
+	string ISBN;
+	string author;
+	string publisher;
+	float bP = 0.00;
+	string genre;
+	string date;
+	int stock = 0;
 };
 
 struct Purchase {
 private:
+	int noLine = 0;
 	int purchaseQty = 0, typesOfBooks = 0, numberOfComma = 0;
 	float pricePerBook = 0.00, totalPricePerBook = 0.00, totalPriceNoTax = 0.00, tax = 0.00, totalFinalPrice = 0.00;
 	string purchaseDate, purchaseID = "PID-", purchaseISBN = "";
@@ -65,6 +70,7 @@ public:
 //////////////////////////// End of Structures ////////////////////////////
 
 struct Books* head = NULL;
+struct Books* temp = NULL;
 struct Purchase* head2 = NULL;
 
 //////////////////////////////////////////////////////////////////////////
@@ -114,7 +120,7 @@ void Books::addBooks() {
 
 	streambP << fixed << setprecision(2) << bP;
 	string bookPrice = streambP.str();
-	string bookDetail = title + "|" + to_string(ISBN) + "|" + author + "|" + publisher + "|" + bookPrice + "|" + to_string(stock) + "|" + genre + "|" + getDate();
+	string bookDetail = title + "|" + ISBN + "|" + author + "|" + publisher + "|" + bookPrice + "|" + to_string(stock) + "|" + genre + "|" + getDate();
 
 	//append: write new line
 	booksFile.open("books.txt", ios::app);
@@ -132,15 +138,274 @@ void Books::addBooks() {
 }
 
 //////////////////////////// end of AddBook ////////////////////////////
+void Books::updateBooks() {
 
-void Books::readFromFileToList() {
-
-	ifstream booksFile("books.txt");
+	int updateChoice;
+	int updateCategory;
 
 	string ISBNs;
 	string bPs;
 	string stocks;
+	string line;
+	int lineNo = 0;
+	string tempBookDetails;
+	bool yesUpdate = false;
+	string newPriceStr;
+	string newBookDetails;
+	stringstream streamnP;
+
+	cout << "*--------------------------------------------------*" << endl;
+	cout << "Are you sure you want to update this book?\n1.Yes\n2.No\nEnter choice:";
+	cin >> updateChoice;
+	while (updateChoice < 0 || updateChoice > 2) {
+		cout << "Invalid value! Please enter correct update choice:\n1.Yes\n2.No\nEnter choice:";
+		cin >> updateChoice;
+	}
+
+	if (updateChoice == 1) {
+
+		//create new file name tempBooks to store all the data that is not deleted
+		ofstream tempBooksFile("tempBooks.txt");
+		//must close the file once it is done created
+		tempBooksFile.close();
+
+		ifstream booksFile("books.txt");
+
+		cout << "Update choices:\n1. Update stock\n2. Update price\n3. Update both\n4. Exit\nEnter choice: ";
+		cin >> updateCategory;
+		cout << endl;
+
+		while (updateCategory < 1 || updateCategory > 4) {
+			cout << "ERROR! Value entered not recognized!\nUpdate choices:\n1. Update stock\n2. Update price\n3. Update both\n4. Exit\nEnter choice: ";
+			cin >> updateCategory;
+			cout << endl;
+		}
+
+		if (updateCategory == 4) { /*main()*/ }
+
+		if (booksFile.is_open()) {
+
+			while (getline(booksFile, line)) {
+				stringstream ss(line);
+				getline(ss, title, '|');
+				getline(ss, ISBNs, '|');
+				getline(ss, author, '|');
+				getline(ss, publisher, '|');
+				getline(ss, bPs, '|');
+				getline(ss, stocks, '|');
+				getline(ss, genre, '|');
+				getline(ss, date, '|');
+
+				//starts checking if book to be deleted matches with the data of the row
+				if (ISBN != ISBNs) {
+					if (lineNo == 0) {
+						tempBooksFile.open("tempBooks.txt");
+						tempBooksFile << line << endl;
+						tempBooksFile.close();
+					}
+					else {
+						//append: write new line
+						tempBooksFile.open("tempBooks.txt", ios::app);
+						//if file is open
+						if (tempBooksFile.is_open()) {
+							tempBooksFile << line << endl;
+							tempBooksFile.close();
+						}
+						else {
+							cout << "Fail to open file." << endl;
+						}
+					}
+				}
+				else {
+					switch (updateCategory) {
+						//update stock
+						int newstock;
+						float newprice;
+						
+					case 1:
+						cout << "Enter current value of stock to update: ";
+						cin >> newstock;
+						cout << endl;
+						while (newstock < 0) {
+							cout << "\nERROR! Value is negative!\nEnter new number of book stocked: ";
+							cin >> newstock;
+							cout << endl;
+						}
+						newBookDetails = title + "|" + ISBNs + "|" + author + "|" + publisher + "|" + bPs + "|" + to_string(newstock) + "|" + genre + "|" + date;
+						break;
+						//update price
+					case 2:
+						cout << "Enter current value of price to update: ";
+						cin >> newprice;
+						cout << endl;
+						while (newprice < 0) {
+							cout << "\nERROR! Value is negative!\nEnter new price of book stocked: ";
+							cin >> newprice;
+							cout << endl;
+						}
+						streamnP << fixed << setprecision(2) << newprice;
+						newPriceStr = streamnP.str();
+						newBookDetails = title + "|" + ISBNs + "|" + author + "|" + publisher + "|" + newPriceStr + "|" + stocks + "|" + genre + "|" + date;
+						break;
+						//update both
+					case 3:
+						cout << "Enter current value of stock to update: ";
+						cin >> newstock;
+						cout << endl;
+						while (newstock < 0) {
+							cout << "\nERROR! Value is negative!\nEnter new number of book stocked: ";
+							cin >> newstock;
+							cout << endl;
+						}
+						cout << "Enter current value of price to update: ";
+						cin >> newprice;
+						cout << endl;
+						while (newprice < 0) {
+							cout << "\nERROR! Value is negative!\nEnter new price of book stocked: ";
+							cin >> newprice;
+							cout << endl;
+						}
+						streamnP << fixed << setprecision(2) << newprice;
+						newPriceStr = streamnP.str();
+						newBookDetails = title + "|" + ISBNs + "|" + author + "|" + publisher + "|" + newPriceStr + "|" + to_string(newstock) + "|" + genre + "|" + date;
+						break;
+					}
+					//append: write new line
+					tempBooksFile.open("tempBooks.txt", ios::app);
+					//if file is open
+					if (tempBooksFile.is_open()) {
+						tempBooksFile << newBookDetails << endl;
+						tempBooksFile.close();
+					}
+					else {
+						cout << "Fail to open file." << endl;
+					}
+					yesUpdate = true;
+				}
+
+				lineNo++;
+			}
+			tempBooksFile.close();
+			// end of while
+		}
+		else {
+			cout << "Failed to open book" << endl;
+		}
+	}
+
+	booksFile.close();
+
+	if (yesUpdate == true) {
+		remove("books.txt");
+		rename("tempBooks.txt", "books.txt");
+		cout << "*--------------- Successfully updated book. ---------------*" << endl;
+		clearBookList();
+	}
+	else {
+		cout << "*--------------- Book update cancelled. ---------------*" << endl;
+	}
+
+}
+
+//////////////////////////// end of updateBooks ////////////////////////////
+void Books::deductBooks(string i, int p) {
+
+	string ISBNs;
+	string stocks;
+	string bPs;
+	string line;
+	int lineNo = 0;
+	string tempBookDetails;
 	
+	string newBookDetails;
+
+		//create new file name tempBooks to store all the data that is not deleted
+		ofstream tempBooksFile("tempBooks.txt");
+		//must close the file once it is done created
+		tempBooksFile.close();
+
+		ifstream booksFile("books.txt");
+
+
+		if (booksFile.is_open()) {
+
+			while (getline(booksFile, line)) {
+				stringstream ss(line);
+				getline(ss, title, '|');
+				getline(ss, ISBNs, '|');
+				getline(ss, author, '|');
+				getline(ss, publisher, '|');
+				getline(ss, bPs, '|');
+				getline(ss, stocks, '|');
+				getline(ss, genre, '|');
+				getline(ss, date, '|');
+
+				//starts checking if book to be deleted matches with the data of the row
+				if (i != ISBNs) {
+					if (lineNo == 0) {
+						tempBooksFile.open("tempBooks.txt");
+						tempBooksFile << line << endl;
+						tempBooksFile.close();
+					}
+					else {
+						//append: write new line
+						tempBooksFile.open("tempBooks.txt", ios::app);
+						//if file is open
+						if (tempBooksFile.is_open()) {
+							tempBooksFile << line << endl;
+							tempBooksFile.close();
+						}
+						else {
+							cout << "Fail to open file." << endl;
+						}
+					}
+				}
+				else {
+					
+						//update stock
+					int newstock = stoi(stocks) - p;
+
+						newBookDetails = title + "|" + ISBNs + "|" + author + "|" + publisher + "|" + bPs + "|" + to_string(newstock) + "|" + genre + "|" + date;
+	
+					//append: write new line
+					tempBooksFile.open("tempBooks.txt", ios::app);
+					//if file is open
+					if (tempBooksFile.is_open()) {
+						tempBooksFile << newBookDetails << endl;
+						tempBooksFile.close();
+					}
+					else {
+						cout << "Fail to open file." << endl;
+					}
+					
+				}
+
+				lineNo++;
+			}
+			tempBooksFile.close();
+			// end of while
+		}
+		else {
+			cout << "Failed to open book" << endl;
+		}
+	
+
+	booksFile.close();
+
+		remove("books.txt");
+		rename("tempBooks.txt", "books.txt");
+		clearBookList();
+	
+}
+//////////////////////////// end of deductBooks ////////////////////////////
+
+void Books::readFromFileToList() {
+
+	ifstream booksFile("books.txt");
+	lineCount = 0;
+	string ISBNs;
+	string bPs;
+	string stocks;
 	string line;
 
 	if (booksFile.is_open()) {
@@ -156,13 +421,15 @@ void Books::readFromFileToList() {
 			getline(ss, genre, '|');
 			getline(ss, date, '|');
 
+			lineCount++;
+
 			//use new instead of malloc, if not wont be able to read string //checkout this source https://www.programmersought.com/article/87014391850/ 
 			//+ https://www.geeksforgeeks.org/new-vs-malloc-and-free-vs-delete-in-c/#:~:text=malloc()%3A%20It%20is%20a,%E2%80%9Cmalloc()%E2%80%9D%20does%20not.
 			/*struct Books* new_Book = (struct Books*)malloc(sizeof(struct Books));*/
 
 			struct Books* new_Book = new Books;
 
-			new_Book->ISBN = stoi(ISBNs); //stoi = string to integer
+			new_Book->ISBN = ISBNs; 
 			new_Book->title = title;
 			new_Book->author = author;
 			new_Book->publisher = publisher;
@@ -192,11 +459,34 @@ void Books::readFromFileToList() {
 	else {
 		cout << "Fail to open file." << endl;
 	}
+
+	int noBooks = 0;
+	struct Books* ptr;
+	ptr = head;
+	cout << "*--------------- Book List ---------------*" << endl;
+	while (ptr != NULL) {
+		noBooks++;
+		cout << ptr->title << "|" << ptr->ISBN << "|" << ptr->author << "|" << ptr->publisher << "|" << ptr->bP << "|" << ptr->stock << "|" << ptr->genre << "|" << ptr->date << endl; \
+			cout << "*--------------------------------------------------*" << endl;
+		ptr = ptr->next;
+	}
+
+	if (noBooks != 0) {
+		cout << "Done displaying all books. There are a total of " << noBooks << " different books inside the database." << endl;
+	}
+	else {
+		cout << "There are no books inside the database. Please insert new book details." << endl;
+
+	}
+
+	clearBookList();
 }
 
 //////////////////////////// end of readFromFile ////////////////////////////
 
 void Books::displayList() {
+
+
 	int noBooks = 0;
 	struct Books* ptr;
 	ptr = head;
@@ -207,6 +497,7 @@ void Books::displayList() {
 		cout << "*--------------------------------------------------*" << endl;
 		ptr = ptr->next;
 	}
+
 	if (noBooks != 0) {
 		cout << "Done displaying all books. There are a total of " << noBooks << " different books inside the database." << endl;
 	}
@@ -218,6 +509,21 @@ void Books::displayList() {
 }
 
 //////////////////////////// end of displayList ////////////////////////////
+
+void Books::clearBookList() {
+	struct Books* current = head;
+
+	//clear linked list
+	while (head != NULL) {
+		current = current->next;
+
+		delete head;
+
+		head = current;
+	}
+}
+
+//////////////////////////// end of clearList ////////////////////////////
 
 void Books::sortBooks() {
 
@@ -329,7 +635,7 @@ void Books::deleteBooks() {
 			getline(ss, date, '|');
 
 			//starts checking if book to be deleted matches with the data of the row
-				if (ISBN != stoi(ISBNs)) {
+				if (ISBN != ISBNs) {
 					if (lineNo == 0) {
 						tempBooksFile.open("tempBooks.txt");
 						tempBooksFile << line << endl;
@@ -379,7 +685,8 @@ void Books::deleteBooks() {
 
 void Books::searchBooks()
 {
-	int searchType, I;
+	int searchType;
+	string I;
 	string T;
 	cout << "*--------------- Search Book ---------------*\nEnter the category you would like to search for book:\n1. Title\n2. ISBN\n3. Exit\nEnter your choice: ";
 	cin >> searchType;
@@ -396,6 +703,7 @@ void Books::searchBooks()
 	if (searchType == 3) { /*main()*/ }
 
 	//readFromFileToList() function done, so directly access the link list
+	
 	struct Books* ptr = head;
 
 	switch (searchType)
@@ -519,33 +827,110 @@ string Purchase::idIncrement() {
 
 void Purchase::addPurchase() {
 
+	Books b;
+	b.readFromFileToList();
+
 	cout << "*--------------- Add New Purchase --------------*" << endl;
 
 	cout << "Enter total number of book types: ";
 	cin >> typesOfBooks;
-	while (typesOfBooks < 0) {
+	
+
+	while (typesOfBooks == 0) {
 		cout << "\nERROR! Value is negative!\nEnter total number of book types: ";
 		cin >> typesOfBooks;
 	}
 
 
+	while (typesOfBooks > b.lineCount) {
+		cout << "\nERROR! Value is invalid!\nEnter total number of book types: ";
+		cin >> typesOfBooks;
+	}
+
+
 	for (int i = 0; i < typesOfBooks; i++) {
+
+		bool searchFound = false;
+
 		cout << "*--------------- Book " << i+1 << " --------------*" << endl;
+
 		cout << "Enter ISBN of book: ";
 		cin >> purchaseISBN;
-		booksISBNs.push(purchaseISBN);
-		cout << "Enter price of book: ";
-		cin >> pricePerBook;
-		streamtpPP << fixed << setprecision(2) << pricePerBook;
-		booksPricePP.push(streamtpPP.str());
-		cout << "Enter number of books purchased: ";
-		cin >> purchaseQty;
-			while (purchaseQty < 0)
-			{
-				cout << "\nERROR! Value is negative!\nEnter number of book purchased: ";
-				cin >> purchaseQty;
+
+		struct Books* ptr = head;
+
+		//search ISBN of book (must match with books that exists)
+		while (ptr != NULL)
+		{
+			if (ptr->ISBN != purchaseISBN) {
+				ptr = ptr->next;
 			}
-		purchaseQuantity.push(purchaseQty);
+			else {
+				searchFound = true;
+				booksISBNs.push(purchaseISBN);
+
+				//bookPrice
+				pricePerBook = ptr->bP;
+				cout << pricePerBook;
+				streamtpPP << fixed << setprecision(2) << pricePerBook;
+				booksPricePP.push(streamtpPP.str());
+
+				//purchaseQty
+				cout << "Enter number of books purchased: ";
+				cin >> purchaseQty;
+				while (purchaseQty <= 0)
+				{
+					cout << "\nERROR! Purchase is invalid!\nEnter number of book purchased: ";
+					cin >> purchaseQty;
+				}
+				while (purchaseQty > ptr->stock) {
+					cout << "ERROR! Purchase is invalid!\nEnter number of book purchased: ";
+					cin >> purchaseQty;
+				}
+				purchaseQuantity.push(purchaseQty);
+
+				//deduct Books
+				b.deductBooks(purchaseISBN, purchaseQty);
+
+				ptr = NULL;
+			}
+		}
+
+		while (searchFound == false) {
+			cout << "Invalid book ISBN. Please enter the correct ISBN: ";
+			cin >> purchaseISBN;
+			struct Books* ptr = head;
+
+			//search ISBN of book (must match with books that exists)
+			while (ptr != NULL)
+			{
+				if (ptr->ISBN != purchaseISBN) {
+					ptr = ptr->next;
+				}
+				else {
+					searchFound = true;
+					booksISBNs.push(purchaseISBN);
+					ptr = NULL;
+				}
+			}
+		}
+
+		//to be removed if we can 
+		/*cout << "Enter price of book: ";*/
+		//cin >> pricePerBook;
+		/*pricePerBook = ptr->bP;
+		streamtpPP << fixed << setprecision(2) << pricePerBook;
+		booksPricePP.push(streamtpPP.str());*/
+
+		//cout << "Enter number of books purchased: ";
+		//cin >> purchaseQty;
+		//	while (purchaseQty < 0)
+		//	{
+		//		cout << "\nERROR! Value is negative!\nEnter number of book purchased: ";
+		//		cin >> purchaseQty;
+		//		//
+		//	}
+		//purchaseQuantity.push(purchaseQty);
 
 			//calculate total price of the book itself
 			totalPricePerBook = purchaseQty * pricePerBook;
@@ -977,7 +1362,7 @@ MainMenu:
 			break;
 		case 2:
 			books.readFromFileToList();
-			books.displayList();
+		/*	books.displayList();*/
 			cout << "*--------------------------------------------------*" << endl;
 			cout << "Back to Inventory Menu" << endl;
 			goto InventoryMenu;
@@ -1002,7 +1387,7 @@ MainMenu:
 				switch (choice)
 				{
 				case 1:
-				/*	books.updateBooks();*/
+					books.updateBooks();
 					cout << "*--------------------------------------------------*" << endl;
 					goto InventoryMenu;
 					break;
@@ -1126,3 +1511,5 @@ MainMenu:
 		//////////////////////////// End of Main Menu ////////////////////////////
 	}
 }
+
+//place functions after main so can call main function
