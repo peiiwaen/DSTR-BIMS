@@ -140,6 +140,7 @@ void Books::addBooks() {
 //////////////////////////// end of AddBook ////////////////////////////
 void Books::updateBooks() {
 
+
 	int updateChoice;
 	int updateCategory;
 
@@ -399,7 +400,11 @@ void Books::deductBooks(string i, int p) {
 }
 //////////////////////////// end of deductBooks ////////////////////////////
 
+
+
 void Books::readFromFileToList() {
+
+	clearBookList();
 
 	ifstream booksFile("books.txt");
 	lineCount = 0;
@@ -460,26 +465,6 @@ void Books::readFromFileToList() {
 		cout << "Fail to open file." << endl;
 	}
 
-	int noBooks = 0;
-	struct Books* ptr;
-	ptr = head;
-	cout << "*--------------- Book List ---------------*" << endl;
-	while (ptr != NULL) {
-		noBooks++;
-		cout << ptr->title << "|" << ptr->ISBN << "|" << ptr->author << "|" << ptr->publisher << "|" << ptr->bP << "|" << ptr->stock << "|" << ptr->genre << "|" << ptr->date << endl; \
-			cout << "*--------------------------------------------------*" << endl;
-		ptr = ptr->next;
-	}
-
-	if (noBooks != 0) {
-		cout << "Done displaying all books. There are a total of " << noBooks << " different books inside the database." << endl;
-	}
-	else {
-		cout << "There are no books inside the database. Please insert new book details." << endl;
-
-	}
-
-	clearBookList();
 }
 
 //////////////////////////// end of readFromFile ////////////////////////////
@@ -505,6 +490,8 @@ void Books::displayList() {
 		cout << "There are no books inside the database. Please insert new book details." << endl;
 		
 	}
+
+	clearBookList();
 
 }
 
@@ -849,7 +836,7 @@ void Purchase::addPurchase() {
 
 
 	for (int i = 0; i < typesOfBooks; i++) {
-
+		b.readFromFileToList();
 		bool searchFound = false;
 
 		cout << "*--------------- Book " << i+1 << " --------------*" << endl;
@@ -1362,7 +1349,7 @@ MainMenu:
 			break;
 		case 2:
 			books.readFromFileToList();
-		/*	books.displayList();*/
+			books.displayList();
 			cout << "*--------------------------------------------------*" << endl;
 			cout << "Back to Inventory Menu" << endl;
 			goto InventoryMenu;
