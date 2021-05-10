@@ -20,7 +20,7 @@ public:
 	stringstream streambP;
 	void addBooks();
 	void readFromFileToList();
-	void displayList();
+	void displayAllBooks();
 	void sortBooks();
 	void deleteBooks();
 	Books* next;
@@ -47,6 +47,10 @@ private:
 	int purchaseQty = 0, typesOfBooks = 0, numberOfComma = 0;
 	float pricePerBook = 0.00, totalPricePerBook = 0.00, totalPriceNoTax = 0.00, tax = 0.00, totalFinalPrice = 0.00;
 	string purchaseDate, purchaseID = "PID-", purchaseISBN = "";
+
+	//temp string
+	string sPurchaseQty, sPricePerBook, sTotalPricePerBook, sPurchaseISBN;
+
 	stack<string> booksISBNs;
 	stack<int> purchaseQuantity;
 	stack<string> booksPricePP;
@@ -60,10 +64,14 @@ public:
 	stringstream taxPrice;
 	string idIncrement();
 	void addPurchase();
-	void readPurchaseToList();
-	void displayPurchase();
+	void viewAllPurchase();
+	void clearPurchaseList();
+	void readPurchaseIntoList();
+	void viewPurchaseDetail();
+	void sortPurchase(); //not yet
 	void countNumberOfComma(string s);
 	Purchase* next;
+	bool purchaseFound = false;
 };
 
 
@@ -428,6 +436,11 @@ void Books::readFromFileToList() {
 
 			lineCount++;
 
+			streambP << fixed << setprecision(2) << bPs;
+			string bookPrice = streambP.str();
+
+			
+
 			//use new instead of malloc, if not wont be able to read string //checkout this source https://www.programmersought.com/article/87014391850/ 
 			//+ https://www.geeksforgeeks.org/new-vs-malloc-and-free-vs-delete-in-c/#:~:text=malloc()%3A%20It%20is%20a,%E2%80%9Cmalloc()%E2%80%9D%20does%20not.
 			/*struct Books* new_Book = (struct Books*)malloc(sizeof(struct Books));*/
@@ -469,26 +482,55 @@ void Books::readFromFileToList() {
 
 //////////////////////////// end of readFromFile ////////////////////////////
 
-void Books::displayList() {
+void Books::displayAllBooks() {
 
 
 	int noBooks = 0;
 	struct Books* ptr;
 	ptr = head;
 	cout << "*--------------- Book List ---------------*" << endl;
+
+	cout << endl;
+	cout << setw(40) << right << "Book Title";
+	cout << setw(16) << right << "\t ISBN";
+	cout << setw(30) << right << "\t Author";
+	cout << setw(30) << right << "\t Publisher";
+	cout << setw(12) << right << "\t Price";
+	cout << setw(5) << right << "\t Stock";
+	cout << setw(15) << right << "\t Genre";
+	cout << setw(13) << right << "\t Date" << endl;;
+
 	while (ptr != NULL) {
 		noBooks++;
-		cout << ptr->title << "|" << ptr->ISBN << "|" << ptr->author << "|" << ptr->publisher << "|" << ptr->bP << "|" << ptr->stock << "|" << ptr->genre << "|" << ptr->date << endl;\
-		cout << "*--------------------------------------------------*" << endl;
+
+
+		cout << setw(40) << ptr->title;
+		cout << setw(21) << ptr->ISBN;
+		cout << setw(34) << ptr->author;
+		cout << setw(35) << ptr->publisher;
+		cout << setw(7) << "RM" << fixed << setprecision(2) << ptr->bP;
+		cout << setw(8) <<  ptr->stock;
+		cout << setw(16) << ptr->genre;
+		cout << setw(15) << ptr->date;
+
+		cout << endl;
+		/*cout << ptr->title << "|" << ptr->ISBN << "|" << ptr->author << "|" << ptr->publisher << "|" << ptr->bP << "|" << ptr->stock << "|" << ptr->genre << "|" << ptr->date << endl;\*/
+		/*cout << "*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*" << endl;*/
 		ptr = ptr->next;
 	}
 
 	if (noBooks != 0) {
+		cout << endl;
+		cout << "*--------------------------------------------------*" << endl;
+		cout << endl;
 		cout << "Done displaying all books. There are a total of " << noBooks << " different books inside the database." << endl;
+		cout << endl;
 	}
 	else {
+		cout << "*--------------------------------------------------*" << endl;
+		cout << endl;
 		cout << "There are no books inside the database. Please insert new book details." << endl;
-		
+		cout << endl;
 	}
 
 	clearBookList();
@@ -510,7 +552,22 @@ void Books::clearBookList() {
 	}
 }
 
-//////////////////////////// end of clearList ////////////////////////////
+//////////////////////////// end of clearBookList ////////////////////////////
+
+void Purchase::clearPurchaseList() {
+	struct Purchase* current = head2;
+
+	//clear linked list
+	while (head2 != NULL) {
+		current = current->next;
+
+		delete head2;
+
+		head2 = current;
+	}
+}
+
+//////////////////////////// end of clearPurchaseList ////////////////////////////
 
 void Books::sortBooks() {
 
@@ -621,6 +678,7 @@ void Books::deleteBooks() {
 			getline(ss, genre, '|');
 			getline(ss, date, '|');
 
+
 			//starts checking if book to be deleted matches with the data of the row
 				if (ISBN != ISBNs) {
 					if (lineNo == 0) {
@@ -672,6 +730,8 @@ void Books::deleteBooks() {
 
 void Books::searchBooks()
 {
+	searchFound = false;
+	genreFound = false;
 	int searchType;
 	string I;
 	string T;
@@ -713,6 +773,9 @@ void Books::searchBooks()
 				ptr = NULL;
 			}
 		}
+
+
+
 		break;
 	case 2:
 		cout << "Enter the ISBN of book to search: ";
@@ -858,7 +921,6 @@ void Purchase::addPurchase() {
 
 				//bookPrice
 				pricePerBook = ptr->bP;
-				cout << pricePerBook;
 				streamtpPP << fixed << setprecision(2) << pricePerBook;
 				booksPricePP.push(streamtpPP.str());
 
@@ -1035,7 +1097,114 @@ void Purchase::countNumberOfComma(string s) {
 //////////////////////////// end of countNumberOfComma  ////////////////////////////
 
 
-void Purchase::readPurchaseToList() {
+void Purchase::viewAllPurchase() {
+
+	int noPurchases = 0;
+	struct Purchase* ptr = head2;
+	ptr = head2;
+
+	cout << "*------------------------------ Purchase List ------------------------------*" << endl;
+
+	while (ptr != NULL)
+	{
+
+		//store as string
+		string strISBN = ptr->sPurchaseISBN;
+		string strQty = ptr->sPurchaseQty;
+		string strPrice = ptr->sPricePerBook;
+		string strTotal = ptr->sTotalPricePerBook;
+
+		//create vector
+		vector<string> strbooksISBNs;
+		vector<string> strpurchaseQuantity;
+		vector<string> strbooksPricePP;
+		vector<string> strtotalPricePP;
+
+		//make each variable (which is a line with delimiter comma into a stringstream
+		stringstream ss1(strISBN);
+		stringstream ss2(strQty);
+		stringstream ss3(strPrice);
+		stringstream ss4(strTotal);
+
+		//source code: https://www.geeksforgeeks.org/program-to-parse-a-comma-separated-string-in-c/
+		//keep pushing the substr
+
+		//ISBN
+		while (ss1.good()) {
+			string substr;
+			getline(ss1, substr, ',');
+			strbooksISBNs.push_back(substr);
+		}
+
+		//Qty
+		while (ss2.good()) {
+			string substr;
+			getline(ss2, substr, ',');
+			strpurchaseQuantity.push_back(substr);
+		}
+
+		//price per book
+		while (ss3.good()) {
+			string substr;
+			getline(ss3, substr, ',');
+			strbooksPricePP.push_back(substr);
+		}
+
+		//totalpriceperbook
+		while (ss4.good()) {
+			string substr;
+			getline(ss4, substr, ',');
+			strtotalPricePP.push_back(substr);
+		}
+		
+			cout << "*----------------------------------- " << purchaseID << " -----------------------------------*" << endl;
+			cout << endl;
+			cout << "\t Book ISBN";
+			cout << "\t Quantity";
+			cout << "\t Price Per Book";
+			cout << "\t\t   Total Price Per Book" << endl;
+
+
+			for (size_t i = 0; i < strbooksISBNs.size(); i++) {
+				cout << "    " << strbooksISBNs[i];
+				cout << "\t\t" << strpurchaseQuantity[i];
+				cout << "\t\tRM" << strbooksPricePP[i];
+				cout << "\t\t\t\tRM" << strtotalPricePP[i];
+				cout << endl;
+			}
+
+			cout << endl;
+			cout << "\t\t\t\t\t\t\t\t\t";
+			cout << "Tax   : RM" << ptr->tax << endl;
+			cout << "\t\t\t\t\t\t\t\t\t";
+			cout << "Total : RM" << ptr->totalFinalPrice << endl;
+			cout << "\t\t\t\t\t\t\t\t\t";
+			cout << "Date  : " << ptr->purchaseDate << endl;
+			cout << endl;
+
+			noPurchases++;
+			ptr = ptr -> next;
+		
+	}
+
+	if (noPurchases != 0) {
+		cout << "*---------------------------------------------------------------------------*" << endl;
+		cout << "Done displaying all purchases. There are a total of " << noPurchases << " purchases inside the database." << endl;
+		cout << "*---------------------------------------------------------------------------*" << endl;
+	}
+	else {
+		cout << "*---------------------------------------------------------------------------*" << endl;
+		cout << "There are no purchases inside the database. Please insert new purchase details." << endl;
+		cout << "*---------------------------------------------------------------------------*" << endl;
+	}
+
+}
+
+//////////////////////////// end of viewAllPurchase  ////////////////////////////
+
+void Purchase::readPurchaseIntoList() {
+
+	clearPurchaseList();
 
 	ifstream purchaseFile("purchases.txt");
 
@@ -1051,8 +1220,6 @@ void Purchase::readPurchaseToList() {
 
 	if (purchaseFile.is_open()) {
 
-		cout << "*------------------------------ Purchase List ------------------------------*" << endl;
-
 		while (getline(purchaseFile, line)) {
 			stringstream ss(line);
 			getline(ss, purchaseID, '|');
@@ -1064,16 +1231,59 @@ void Purchase::readPurchaseToList() {
 			getline(ss, totalFinalPrices, '|');
 			getline(ss, purchaseDate, '|');
 
-			/*countNumberOfComma(purchaseISBNs);*/
 
-		//Further separate the commas inside each delimiter
-			//First countISBNs commas
-			/*int i = 0;*/
+			//store into linkedlist
 
-			string strISBN = purchaseISBNs;
-			string strQty = purchaseQtys;
-			string strPrice = pricePerBooks;
-			string strTotal = totalPricePerBooks;
+			struct Purchase* new_Purchase = new Purchase;
+
+			new_Purchase->purchaseID = purchaseID;
+			new_Purchase->sPurchaseISBN = purchaseISBNs;
+			new_Purchase->sPurchaseQty = purchaseQtys;
+			new_Purchase->sPricePerBook = pricePerBooks;
+			new_Purchase->sTotalPricePerBook = totalPricePerBooks; //stof = string to float
+			new_Purchase->tax = stof(taxs);
+			new_Purchase->totalFinalPrice = stof(totalFinalPrices);
+			new_Purchase->purchaseDate = purchaseDate;
+
+			new_Purchase->next = NULL;
+
+			if (head2 == NULL) {
+				head2 = new_Purchase;
+			}
+			else {
+				Purchase* last2 = head2;
+				while (last2->next != NULL) {
+					last2 = last2->next;
+				}
+				last2->next = new_Purchase;
+			}
+		}
+	}
+}
+
+//////////////////////////// end of readPurchaseIntoList  ////////////////////////////
+
+void Purchase::viewPurchaseDetail() {
+
+
+	purchaseFound = false;
+	string searchID;
+
+	struct Purchase* ptr = head2;
+	ptr = head2;
+
+	
+		cout << "Enter the purchase record ID to search: ";
+		cin >> searchID;
+		
+		while (ptr != NULL)
+		{
+
+			//store as string
+			string strISBN = ptr->sPurchaseISBN;
+			string strQty = ptr->sPurchaseQty;
+			string strPrice = ptr->sPricePerBook;
+			string strTotal = ptr->sTotalPricePerBook;
 
 			//create vector
 			vector<string> strbooksISBNs;
@@ -1086,7 +1296,6 @@ void Purchase::readPurchaseToList() {
 			stringstream ss2(strQty);
 			stringstream ss3(strPrice);
 			stringstream ss4(strTotal);
-
 
 			//source code: https://www.geeksforgeeks.org/program-to-parse-a-comma-separated-string-in-c/
 			//keep pushing the substr
@@ -1119,169 +1328,49 @@ void Purchase::readPurchaseToList() {
 				strtotalPricePP.push_back(substr);
 			}
 
-			/*for (size_t i = 0; i < strbooksISBNs.size(); i++)
-				cout << strbooksISBNs[i] << endl;*/
 
-			/*for (int i = 0; i < numberOfComma + 1; i++) {*/
-			/*while (i < numberOfComma + 1) { 
-				stringstream strISBN(purchaseISBNs);
-				stringstream strQty(purchaseQtys);
-				stringstream strPrice(pricePerBooks);
-				stringstream strTotalPrice(totalPricePerBooks);
-				
-				getline(strISBN, purchaseISBNs, ',');
-				strbooksISBNs.push(purchaseISBNs);
-
-			getline(strISBN, purchaseISBNs, ',');
-				strbooksISBNs.push(purchaseISBNs);
-				getline(strISBN, purchaseISBNs, ',');
-				strbooksISBNs.push(purchaseISBNs);
-
-				getline(strQty, purchaseQtys, ',');
-				strpurchaseQuantity.push(purchaseQtys);
-
-				getline(strQty, purchaseQtys, ',');
-				strpurchaseQuantity.push(purchaseQtys);
-				getline(strQty, purchaseQtys, ',');
-				strpurchaseQuantity.push(purchaseQtys);
-
-				getline(strPrice, pricePerBooks, ',');
-				strbooksPricePP.push(pricePerBooks);
-
-				getline(strPrice, pricePerBooks, ',');
-				strbooksPricePP.push(pricePerBooks);
-				getline(strPrice, pricePerBooks, ',');
-				strbooksPricePP.push(pricePerBooks);
-
-				getline(strTotalPrice, totalPricePerBooks, ',');
-				strtotalPricePP.push(totalPricePerBooks);
-
-				getline(strTotalPrice, totalPricePerBooks, ',');
-				strtotalPricePP.push(totalPricePerBooks);
-				getline(strTotalPrice, totalPricePerBooks, ',');
-				strtotalPricePP.push(totalPricePerBooks);
-				i++;*/
-			/*}*/
-
-			cout << "*----------------------------------- " << purchaseID << " -----------------------------------*" << endl;
-			cout << endl;
-			cout << "\tBook ISBN";
-			cout << "\t Quantity";
-			cout << "\tPrice Per Book";
-			cout << "\t Total Price Per Book" <<endl;
-
-			/*while (strbooksISBNs.size() != 0) {
-				cout << "    " << strbooksISBNs.top();
-				strbooksISBNs.pop();
-				cout << "\t\t" << strpurchaseQuantity.top();
-				strpurchaseQuantity.pop();
-				cout << "\t\tRM" << strbooksPricePP.top();
-				strbooksPricePP.pop();
-				cout << "\t\tRM" << strtotalPricePP.top();
-				strtotalPricePP.pop();
-				cout << endl;
-			}*/
-
-			for (size_t i = 0; i < strbooksISBNs.size(); i++) {
-				cout << "    " << strbooksISBNs[i];
-				cout << "\t\t" << strpurchaseQuantity[i];
-				cout << "\t\tRM" << strbooksPricePP[i];
-				cout << "\t\tRM" << strtotalPricePP[i];
-				cout << endl;
-			}
-
-			cout << endl;
-			cout << "\t\t\t\t\t\t\t";
-			cout << "Tax   : RM" << taxs << endl;
-			cout << "\t\t\t\t\t\t\t";
-			cout << "Total : RM" << totalFinalPrices << endl;
-			cout << "\t\t\t\t\t\t\t";
-			cout << "Date  : " << purchaseDate << endl;
-			cout << endl;
-
-
-			//use new instead of malloc, if not wont be able to read string //checkout this source https://www.programmersought.com/article/87014391850/ 
-			//+ https://www.geeksforgeeks.org/new-vs-malloc-and-free-vs-delete-in-c/#:~:text=malloc()%3A%20It%20is%20a,%E2%80%9Cmalloc()%E2%80%9D%20does%20not.
-			/*struct Books* new_Book = (struct Books*)malloc(sizeof(struct Books));*/
-
-			/*cout << purchaseISBNs;*/
-
-			/*struct Purchase* new_Purchase = new Purchase;
-
-			new_Purchase->purchaseID = purchaseID;
-			new_Purchase->purchaseISBN = stoi(purchaseISBNs);
-			new_Purchase->purchaseQty = stoi(purchaseQtys);
-			new_Purchase->pricePerBook = stof(pricePerBooks);
-			new_Purchase->totalPricePerBook = stof(totalPricePerBooks);
-			new_Purchase->tax = stof(taxs);
-			new_Purchase->totalFinalPrice = stof(totalFinalPrices);
-			new_Purchase->purchaseDate = purchaseDate;
-
-			new_Purchase->next = NULL;
-
-			if (head2 == NULL) {
-				head2 = new_Purchase;
+			if (ptr->purchaseID != searchID)
+			{
+				ptr = ptr->next;
 			}
 			else {
-				Purchase* last = head2;
-				while (last->next != NULL) {
-					last = last->next;
+				cout << "*--------------- Purchase Found! ---------------*" << endl;
+				cout << "*----------------------------------- " << ptr->purchaseID << " -----------------------------------*" << endl;
+				cout << endl;
+				cout << "\t Book ISBN";
+				cout << "\t Quantity";
+				cout << "\t Price Per Book";
+				cout << "\t\t   Total Price Per Book" << endl;
+
+
+				for (size_t i = 0; i < strbooksISBNs.size(); i++) {
+					cout << "    " << strbooksISBNs[i];
+					cout << "\t\t" << strpurchaseQuantity[i];
+					cout << "\t\tRM" << strbooksPricePP[i];
+					cout << "\t\t\t\tRM" << strtotalPricePP[i];
+					cout << endl;
 				}
-				last->next = new_Purchase;
-			
-			}*/
-			noPurchases++;
+
+				cout << endl;
+				cout << "\t\t\t\t\t\t\t\t\t";
+				cout << "Tax   : RM" << ptr->tax << endl;
+				cout << "\t\t\t\t\t\t\t\t\t";
+				cout << "Total : RM" << ptr->totalFinalPrice << endl;
+				cout << "\t\t\t\t\t\t\t\t\t";
+				cout << "Date  : " << ptr->purchaseDate << endl;
+				cout << endl;
+
+				purchaseFound = true;
+				ptr = NULL;
+			}
 		}
-
-		//cout << "*--------------- Purchase List ---------------*" << endl;
-
-		//struct Purchase* ptr;
-		//ptr = head2;
-		//while (ptr != NULL) {
-		//	noPurchases++;
-		//	/*cout << ptr->purchaseID << "|" << ptr->purchaseISBN << "|" << ptr->purchaseQty << "|" << ptr->pricePerBook << "|" << ptr->totalPricePerBook << "|" << ptr->tax << "|" << ptr->totalFinalPrice << "|" << ptr->purchaseDate << endl; */
-		//	cout << "*--------------- " << ptr->purchaseID << " --------------*" << endl;
-		//	cout << endl;
-		//	
-		//	cout << totalPricePP.top();
-		//	cout << "Tax: RM" << ptr->tax << endl;
-		//	cout << "Total Price: RM" << ptr->totalFinalPrice << endl;
-		//	cout << "Date of purchase: " << ptr->purchaseDate << endl;
-
-		//	
-		//	/*totalPricePP.pop();
-		//	cout << endl;
-		//	ptr = ptr->next;*/
-
-
-		//}
-		if (noPurchases != 0) {
-			cout << "*---------------------------------------------------------------------------*" << endl;
-			cout << "Done displaying all purchases. There are a total of " << noPurchases << " purchases inside the database." << endl;
-			cout << "*---------------------------------------------------------------------------*" << endl;
-		}
-		else {
-			cout << "*---------------------------------------------------------------------------*" << endl;
-			cout << "There are no purchases inside the database. Please insert new purchase details." << endl;
-			cout << "*---------------------------------------------------------------------------*" << endl;
-		}
-
-		purchaseFile.close();
-	}
-
-	else {
-		cout << "Fail to open file." << endl;
-	}
 
 }
 
-//////////////////////////// end of readPurchase  ////////////////////////////
 
-void Purchase::displayPurchase() {
+//////////////////////////// end of viewPurchaseDetails ////////////////////////////
 
-}
 
-//////////////////////////// end of displayList ////////////////////////////
 
 int main() {
 
@@ -1349,7 +1438,7 @@ MainMenu:
 			break;
 		case 2:
 			books.readFromFileToList();
-			books.displayList();
+			books.displayAllBooks();
 			cout << "*--------------------------------------------------*" << endl;
 			cout << "Back to Inventory Menu" << endl;
 			goto InventoryMenu;
@@ -1450,12 +1539,35 @@ MainMenu:
 			goto PurchaseMenu;
 			break;
 		case 2:
-			purchase.readPurchaseToList();
+			purchase.readPurchaseIntoList();
+			purchase.viewAllPurchase();
 			goto PurchaseMenu;
 			break;
 		case 3:
 			break;
 		case 4:
+			purchase.readPurchaseIntoList();
+			purchase.viewPurchaseDetail();
+			if (purchase.purchaseFound == true) {
+				cout << "*-------------------------Purchase record with same purchase ID has been found.-------------------------*" << endl;
+			}
+			else {
+				cout << "*-------------------------Purchase record with same purchase ID does not exist.-------------------------*" << endl;
+				cout << "Would you like to add new purchase record?\n1. Yes\n2. No\nEnter choice: ";
+				cin >> choice;
+				while (choice < 1 || choice > 2) {
+					cout << "Invalid value! Please enter correct value. \nWould you like to add new purchase record?\n1. Yes\n2. No\nEnter choice: ";
+					cin >> choice;
+				}
+
+				if (choice == 1) {
+					purchase.addPurchase();
+				}
+				else {
+					goto PurchaseMenu;
+				}
+			}
+			goto PurchaseMenu;
 			break;
 		case 5:
 			goto MainMenu;
