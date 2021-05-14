@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <stack>
 #include <vector>
+#include <algorithm>
+
 using namespace std;
 
 //////////////////////////// End of top sections ////////////////////////////
@@ -20,8 +22,8 @@ public:
 	stringstream streambP;
 	void addBooks();
 	void readFromFileToList();
-	void displayAllBooks();
 	void sortBooks();
+	void displayAllBooks();
 	void deleteBooks();
 	Books* next;
 	bool searchFound = false, genreFound = false;
@@ -571,22 +573,64 @@ void Purchase::clearPurchaseList() {
 
 void Books::sortBooks() {
 
+	int sortType;
+	int sortSeq;
+
+	int min;
+	int tempNoJ;
+	int tempNoMin;
+	float tempNoJF;
+	float tempNoMinF;
+
+	cout << "*---------------------------------------------------------------------------*" << endl;
+	cout << "Which value would you like to sort?\n1.ISBN\n2.Price\n3.Stock\nEnter your choice: ";
+	cin >> sortType;
+	while (sortType < 1 || sortType > 3) {
+		cout << "*---------------------------------------------------------------------------*" << endl;
+		cout << "Invalid value! Which value would you like to sort?\n1.ISBN\n2.Price\n3.Stock\nEnter your choice: ";
+		cin >> sortType;
+	}
+	cout << "*---------------------------------------------------------------------------*" << endl;
+	cout << "Which sequence would you like to sort by?\n1.Ascending\n2.Descending\nEnter your choice: ";
+	cin >> sortSeq;
+	while (sortSeq < 1 || sortSeq > 2) {
+		cout << "*---------------------------------------------------------------------------*" << endl;
+		cout << "Invalid value! Which sequence would you like to sort by?\n1.Ascending\n2.Descending\nEnter your choice: ";
+		cin >> sortSeq;
+	}
+
 	ifstream booksFile("books.txt");
+	ifstream booksFiles("books.txt");
 
 	string ISBNs;
 	string bPs;
 	string stocks;
-	int numberOfLines = 1;
-	int numberOfCol = 8;
 	string line;
+
 	int lineCount = 0;
+	int tempLine = 0;
 
-
+	//count Number of Lines inside books.txt
 	if (booksFile.is_open()) {
-
-		string** a = new string * [numberOfLines];
-
 		while (getline(booksFile, line)) {
+			lineCount++;
+		}
+	}
+
+	int row = lineCount;
+	int col = 8;
+
+	//source = https://www.techiedelight.com/dynamic-memory-allocation-in-c-for-2d-3d-array/
+
+	string** A = new string * [row];
+
+	for (int i = 0; i < row; i++) {
+		A[i] = new string[col];
+	}
+
+	if (booksFiles.is_open()) {
+
+		while (getline(booksFiles, line)) {
 
 			stringstream ss(line);
 			getline(ss, title, '|');
@@ -598,43 +642,138 @@ void Books::sortBooks() {
 			getline(ss, genre, '|');
 			getline(ss, date, '|');
 
-			for (int i = 0; i < numberOfLines; i++) {
-				a[i] = new string[numberOfCol];
-			}
-
-			for (int i = 0; i < numberOfLines; i++) {
-
-				a[i][0] = title;
-				a[i][1] = ISBNs;
-				a[i][2] = author;
-				a[i][3] = publisher;
-				a[i][4] = bPs;
-				a[i][5] = stocks;
-				a[i][6] = genre;
-				a[i][7] = date;
-
-			}
-
-			lineCount++;
-
-			//if you want to check if it did write into the array 
-			for (int i = 0; i < numberOfLines; i++) {
-				for (int j = 0; j < numberOfCol; j++) {
-					cout << a[i][j] << "|";
+			for (int i = 0; i < row; i++)
+			{
+				if (i == tempLine) { //source: http://www.cplusplus.com/forum/beginner/26997/
+					A[i][0] = title;
+					A[i][1] = ISBNs;
+					A[i][2] = author;
+					A[i][3] = publisher;
+					A[i][4] = bPs;
+					A[i][5] = stocks;
+					A[i][6] = genre;
+					A[i][7] = date;
 				}
-				cout << endl;
+
 			}
 
+			tempLine++;
 		}
 
-		cout << lineCount;
-
 	}
+
+	switch (sortType) {
+	case 1:
+		for (int i = 0; i < row - 1; i++) {
+			min = i;
+			for (int j = i + 1; j < row; j++) {
+				if (A[j][1] < A[min][1]) {
+					for (int k = 0; k < col; k++) {
+						swap(A[min][k], A[j][k]);
+					}
+				}
+			}
+		}
+		break;
+	case 2:
+		for (int i = 0; i < row - 1; i++) {
+			min = i;
+			for (int j = i + 1; j < row; j++) {
+				tempNoJF = stof(A[j][4]);
+				tempNoMinF = stof(A[min][4]);
+				if (tempNoJF < tempNoMinF) {
+					for (int k = 0; k < col; k++) {
+						swap(A[min][k], A[j][k]);
+					}
+				}
+			}
+		}
+		break;
+	case 3: 
+		//sort based on a Stock
+		for (int i = 0; i < row - 1; i++) {
+			min = i;
+			for (int j = i + 1; j < row; j++) {
+				tempNoJ = stoi(A[j][5]);
+				tempNoMin = stoi(A[min][5]);
+				if (tempNoJ < tempNoMin) {
+					for (int k = 0; k < col; k++) {
+						swap(A[min][k], A[j][k]);
+					}
+				}
+			}
+		}
+		break;
+	}
+
+
+	//sort based on a Stock
+	/*for (int i = 0; i < row - 1; i++) {
+		min = i;
+		for (int j = i + 1; j < row; j++) {
+			tempNoJ = stoi(A[j][5]);
+			tempNoMin = stoi(A[min][5]);
+			if (tempNoJ < tempNoMin) {
+				for (int k = 0; k < col; k++) {
+					swap(A[min][k], A[j][k]);
+				}
+			}
+		}
+	}*/
+
+	//sort based on a Price
+	/*for (int i = 0; i < row - 1; i++) {
+		min = i;
+		for (int j = i + 1; j < row; j++) {
+			tempNoJF = stof(A[j][4]);
+			tempNoMinF = stof(A[min][4]);
+			if (tempNoJ < tempNoMin) {
+				for (int k = 0; k < col; k++) {
+					swap(A[min][k], A[j][k]);
+				}
+			}
+		}
+	}*/
+
+	//output Ascending  (read from top to bottom)
+	/*for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			cout << A[i][j] << " | ";
+		}
+		cout << endl;
+	}*/
+
+	//output descending (read from bottom to top)
+	/*for (int i = row-1; i >= 0 ; i--) {
+		for (int j = 0; j < col; j++) {
+			cout << A[i][j] << " | ";
+		}
+		cout << endl;
+	}*/
+
+
+	if (sortSeq == 1) {
+		cout << "*---------------------------------------------------------------------------*" << endl;
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < col; j++) {
+				cout << A[i][j] << " | ";
+			}
+			cout << endl;
+		}
+	}
+	else if (sortSeq == 2) {
+		cout << "*---------------------------------------------------------------------------*" << endl;
+		for (int i = row - 1; i >= 0; i--) {
+			for (int j = 0; j < col; j++) {
+				cout << A[i][j] << " | ";
+			}
+			cout << endl;
+		}
+	}
+
 }
 
-
-
-//////////////////////////// end of readFromFileToArray  ////////////////////////////
+//////////////////////////// end of sortBooks  ////////////////////////////
 
 void Books::deleteBooks() {
 
@@ -805,6 +944,7 @@ void Books::searchBooks()
 void Books::filterBooks()
 {
 	int filterType;
+	lineCount = 0;
 	string G;
 	cout << "*--------------- Filter Book ---------------*\nEnter the genre of books you would like to filter: ";
 	cin.ignore();
@@ -813,13 +953,37 @@ void Books::filterBooks()
 
 	//readFromFileToList() function done, so directly access the link list
 	struct Books* ptr = head;
+
+	cout << "*--------------- Book List ---------------*" << endl;
+
+	cout << endl;
+	cout << setw(40) << right << "Book Title";
+	cout << setw(16) << right << "\t ISBN";
+	cout << setw(30) << right << "\t Author";
+	cout << setw(30) << right << "\t Publisher";
+	cout << setw(12) << right << "\t Price";
+	cout << setw(5) << right << "\t Stock";
+	cout << setw(15) << right << "\t Genre";
+	cout << setw(13) << right << "\t Date" << endl;;
+
 	while (ptr != NULL)
 	{
 		if (ptr->genre == G)
-		{
-			cout << ptr->title << "|" << ptr->ISBN << "|" << ptr->author << "|" << ptr->publisher << "|" << ptr->bP << "|" << ptr->stock << "|" << ptr->genre << "|" << ptr->date << endl;
-			cout << "*--------------------------------------------------*" << endl;
+		{	
+			cout << setw(40) << ptr->title;
+			cout << setw(21) << ptr->ISBN;
+			cout << setw(34) << ptr->author;
+			cout << setw(35) << ptr->publisher;
+			cout << setw(7) << "RM" << fixed << setprecision(2) << ptr->bP;
+			cout << setw(8) << ptr->stock;
+			cout << setw(16) << ptr->genre;
+			cout << setw(15) << ptr->date;
+
+			cout << endl;
+			cout << endl;
+
 			genreFound = true;
+			lineCount++;
 			ptr = ptr->next;
 			
 		}
@@ -827,6 +991,7 @@ void Books::filterBooks()
 			ptr = ptr->next;
 		}
 	}
+
 }
 
 //////////////////////////// end of filterBooks ////////////////////////////
@@ -899,7 +1064,9 @@ void Purchase::addPurchase() {
 
 
 	for (int i = 0; i < typesOfBooks; i++) {
+
 		b.readFromFileToList();
+
 		bool searchFound = false;
 
 		cout << "*--------------- Book " << i+1 << " --------------*" << endl;
@@ -912,6 +1079,10 @@ void Purchase::addPurchase() {
 		//search ISBN of book (must match with books that exists)
 		while (ptr != NULL)
 		{
+			////////////////////////
+
+			/////////////////////
+
 			if (ptr->ISBN != purchaseISBN) {
 				ptr = ptr->next;
 			}
@@ -925,15 +1096,15 @@ void Purchase::addPurchase() {
 				booksPricePP.push(streamtpPP.str());
 
 				//purchaseQty
-				cout << "Enter number of books purchased: ";
+				cout << "Enter number of books purchased [Current number of stock left for this book : " << ptr->stock << " ] :";
 				cin >> purchaseQty;
 				while (purchaseQty <= 0)
 				{
-					cout << "\nERROR! Purchase is invalid!\nEnter number of book purchased: ";
+					cout << "\nERROR! Purchase is invalid!\nEnter number of book purchased [Current number of stock left for this book : " << ptr->stock << " ] :";
 					cin >> purchaseQty;
 				}
 				while (purchaseQty > ptr->stock) {
-					cout << "ERROR! Purchase is invalid!\nEnter number of book purchased: ";
+					cout << "\nERROR! Purchase is invalid!\nEnter number of book purchased [Current number of stock left for this book : " << ptr->stock << " ] :";
 					cin >> purchaseQty;
 				}
 				purchaseQuantity.push(purchaseQty);
@@ -950,6 +1121,8 @@ void Purchase::addPurchase() {
 			cin >> purchaseISBN;
 			struct Books* ptr = head;
 
+			ptr = head;
+
 			//search ISBN of book (must match with books that exists)
 			while (ptr != NULL)
 			{
@@ -959,27 +1132,33 @@ void Purchase::addPurchase() {
 				else {
 					searchFound = true;
 					booksISBNs.push(purchaseISBN);
+
+					//bookPrice
+					pricePerBook = ptr->bP;
+					streamtpPP << fixed << setprecision(2) << pricePerBook;
+					booksPricePP.push(streamtpPP.str());
+
+					//purchaseQty
+					cout << "Enter number of books purchased [Current number of stock left for this book : " << ptr->stock << " ] :";
+					cin >> purchaseQty;
+					while (purchaseQty <= 0)
+					{
+						cout << "\nERROR! Purchase is invalid!\nEnter number of book purchased [Current number of stock left for this book : " << ptr->stock << " ] :";
+						cin >> purchaseQty;
+					}
+					while (purchaseQty > ptr->stock) {
+						cout << "\nERROR! Purchase is invalid!\nEnter number of book purchased [Current number of stock left for this book : " << ptr->stock << " ] :";
+						cin >> purchaseQty;
+					}
+					purchaseQuantity.push(purchaseQty);
+
+					//deduct Books
+					b.deductBooks(purchaseISBN, purchaseQty);
+
 					ptr = NULL;
 				}
 			}
 		}
-
-		//to be removed if we can 
-		/*cout << "Enter price of book: ";*/
-		//cin >> pricePerBook;
-		/*pricePerBook = ptr->bP;
-		streamtpPP << fixed << setprecision(2) << pricePerBook;
-		booksPricePP.push(streamtpPP.str());*/
-
-		//cout << "Enter number of books purchased: ";
-		//cin >> purchaseQty;
-		//	while (purchaseQty < 0)
-		//	{
-		//		cout << "\nERROR! Value is negative!\nEnter number of book purchased: ";
-		//		cin >> purchaseQty;
-		//		//
-		//	}
-		//purchaseQuantity.push(purchaseQty);
 
 			//calculate total price of the book itself
 			totalPricePerBook = purchaseQty * pricePerBook;
@@ -1263,6 +1442,170 @@ void Purchase::readPurchaseIntoList() {
 
 //////////////////////////// end of readPurchaseIntoList  ////////////////////////////
 
+void Purchase::sortPurchase() {
+
+	int sortType;
+	int sortSeq;
+
+	int min;
+	int tempNoJ;
+	int tempNoMin;
+	float tempNoJF;
+	float tempNoMinF;
+
+	cout << "*---------------------------------------------------------------------------*" << endl;
+	cout << "Which value would you like to sort?\n1.PID\n2.Total Purchase Price\n3.PurchaseDate\nEnter your choice: ";
+	cin >> sortType;
+	while (sortType < 1 || sortType > 3) {
+		cout << "*---------------------------------------------------------------------------*" << endl;
+		cout << "Invalid value! Which value would you like to sort?\n1.PID\n2.Total Purchase Price\n3.PurchaseDate\nEnter your choice: ";
+		cin >> sortType;
+	}
+	cout << "*---------------------------------------------------------------------------*" << endl;
+	cout << "Which sequence would you like to sort by?\n1.Ascending\n2.Descending\nEnter your choice: ";
+	cin >> sortSeq;
+	while (sortSeq < 1 || sortSeq > 2) {
+		cout << "*---------------------------------------------------------------------------*" << endl;
+		cout << "Invalid value! Which sequence would you like to sort by?\n1.Ascending\n2.Descending\nEnter your choice: ";
+		cin >> sortSeq;
+	}
+
+	ifstream purchaseFile("purchases.txt");
+	ifstream purchaseFiles("purchases.txt");
+
+	string sPurchaseID;
+	string purchaseISBNs;
+	string purchaseQtys;
+	string pricePerBooks;
+	string totalPricePerBooks;
+	string taxs;
+	string totalFinalPrices;
+	string sPurchaseDate;
+	string line;
+
+
+	int lineCount = 0;
+	int tempLine = 0;
+
+	//count Number of Lines inside books.txt
+	if (purchaseFile.is_open()) {
+		while (getline(purchaseFile, line)) {
+			lineCount++;
+		}
+	}
+
+	int row = lineCount;
+	int col = 8;
+
+	//source = https://www.techiedelight.com/dynamic-memory-allocation-in-c-for-2d-3d-array/
+
+	string** P = new string * [row];
+
+	for (int i = 0; i < row; i++) {
+		P[i] = new string[col];
+	}
+
+	if (purchaseFiles.is_open()) {
+
+		while (getline(purchaseFiles, line)) {
+
+			stringstream ss(line);
+			getline(ss, sPurchaseID, '|');
+			getline(ss, purchaseISBNs, '|');
+			getline(ss, purchaseQtys, '|');
+			getline(ss, pricePerBooks, '|');
+			getline(ss, totalPricePerBooks, '|');
+			getline(ss, taxs, '|');
+			getline(ss, totalFinalPrices, '|');
+			getline(ss, sPurchaseDate, '|');
+
+			for (int i = 0; i < row; i++)
+			{
+				if (i == tempLine) { //source: http://www.cplusplus.com/forum/beginner/26997/
+					P[i][0] = sPurchaseID;
+					P[i][1] = purchaseISBNs;
+					P[i][2] = purchaseQtys;
+					P[i][3] = pricePerBooks;
+					P[i][4] = totalPricePerBooks;
+					P[i][5] = taxs;
+					P[i][6] = totalFinalPrices;
+					P[i][7] = sPurchaseDate;
+				}
+
+			}
+
+			tempLine++;
+		}
+
+	}
+
+
+	switch (sortType) {
+	case 1:
+		for (int i = 0; i < row - 1; i++) {
+			min = i;
+			for (int j = i + 1; j < row; j++) {
+				if (P[j][0] < P[min][0]) {
+					for (int k = 0; k < col; k++) {
+						swap(P[min][k], P[j][k]);
+					}
+				}
+			}
+		}
+		break;
+	case 2:
+		for (int i = 0; i < row - 1; i++) {
+			min = i;
+			for (int j = i + 1; j < row; j++) {
+				tempNoJF = stof(P[j][6]);
+				tempNoMinF = stof(P[min][6]);
+				if (tempNoJF < tempNoMinF) {
+					for (int k = 0; k < col; k++) {
+						swap(P[min][k], P[j][k]);
+					}
+				}
+			}
+		}
+		break;
+	case 3:
+		//sort based on a Stock
+		for (int i = 0; i < row - 1; i++) {
+			min = i;
+			for (int j = i + 1; j < row; j++) {
+				if (P[j][7] < P[min][7]) {
+					for (int k = 0; k < col; k++) {
+						swap(P[min][k], P[j][k]);
+					}
+				}
+			}
+		}
+		break;
+	}
+
+
+	if (sortSeq == 1) {
+		cout << "*---------------------------------------------------------------------------*" << endl;
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < col; j++) {
+				cout << P[i][j] << " | ";
+			}
+			cout << endl;
+		}
+	}
+	else if (sortSeq == 2) {
+		cout << "*---------------------------------------------------------------------------*" << endl;
+		for (int i = row - 1; i >= 0; i--) {
+			for (int j = 0; j < col; j++) {
+				cout << P[i][j] << " | ";
+			}
+			cout << endl;
+		}
+	}
+
+}
+
+//////////////////////////// end of sortPurchase  ////////////////////////////
+
 void Purchase::viewPurchaseDetail() {
 
 
@@ -1455,7 +1798,7 @@ MainMenu:
 				//Validate
 				while (choice < 1 || choice > 3)
 				{
-					cout << "ERROR! Value entered is out of bound!\n\nWould you like to update or delete this book?\n1. Update\n2. Delete\n3. Exit\nEnter choice: ";
+					cout << "ERROR! Value entered is invalid!\n\nWould you like to update or delete this book?\n1. Update\n2. Delete\n3. Exit\nEnter choice: ";
 					cin >> choice;
 				}
 
@@ -1492,11 +1835,29 @@ MainMenu:
 		case 4:
 			books.readFromFileToList();
 			books.filterBooks();
-			if (books.genreFound == false) { cout << "ERROR! Genre not found!\n*--------------------------------------------------*" << endl; }
+			if (books.genreFound == false) {
+				cout << endl;
+				cout << "ERROR! Genre not found!" << endl;
+				cout << endl;
+			}
+			else {
+				if (books.lineCount == 1) {
+					cout << endl;
+					cout << "Filter result returned. There are: " << books.lineCount << " of book with the same genre." << endl;
+					cout << endl;
+				}
+				else {
+					cout << endl;
+					cout << "Filter result returned. There are: " << books.lineCount << " of books with the same genre." << endl;
+					cout << endl;
+				}
+				
+			}
 			goto InventoryMenu;
 			break;
 		case 5:
 			books.sortBooks();
+			goto InventoryMenu;
 			break;
 		case 6:
 			goto MainMenu;
@@ -1544,6 +1905,8 @@ MainMenu:
 			goto PurchaseMenu;
 			break;
 		case 3:
+			purchase.sortPurchase();
+			goto PurchaseMenu;
 			break;
 		case 4:
 			purchase.readPurchaseIntoList();
