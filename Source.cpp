@@ -706,69 +706,48 @@ void Books::sortBooks() {
 		break;
 	}
 
+	cout << "*--------------- Book List ---------------*" << endl;
 
-	//sort based on a Stock
-	/*for (int i = 0; i < row - 1; i++) {
-		min = i;
-		for (int j = i + 1; j < row; j++) {
-			tempNoJ = stoi(A[j][5]);
-			tempNoMin = stoi(A[min][5]);
-			if (tempNoJ < tempNoMin) {
-				for (int k = 0; k < col; k++) {
-					swap(A[min][k], A[j][k]);
-				}
-			}
-		}
-	}*/
-
-	//sort based on a Price
-	/*for (int i = 0; i < row - 1; i++) {
-		min = i;
-		for (int j = i + 1; j < row; j++) {
-			tempNoJF = stof(A[j][4]);
-			tempNoMinF = stof(A[min][4]);
-			if (tempNoJ < tempNoMin) {
-				for (int k = 0; k < col; k++) {
-					swap(A[min][k], A[j][k]);
-				}
-			}
-		}
-	}*/
-
-	//output Ascending  (read from top to bottom)
-	/*for (int i = 0; i < row; i++) {
-		for (int j = 0; j < col; j++) {
-			cout << A[i][j] << " | ";
-		}
-		cout << endl;
-	}*/
-
-	//output descending (read from bottom to top)
-	/*for (int i = row-1; i >= 0 ; i--) {
-		for (int j = 0; j < col; j++) {
-			cout << A[i][j] << " | ";
-		}
-		cout << endl;
-	}*/
-
+	cout << endl;
+	cout << setw(40) << right << "Book Title";
+	cout << setw(16) << right << "\t ISBN";
+	cout << setw(30) << right << "\t Author";
+	cout << setw(30) << right << "\t Publisher";
+	cout << setw(12) << right << "\t Price";
+	cout << setw(5) << right << "\t Stock";
+	cout << setw(15) << right << "\t Genre";
+	cout << setw(13) << right << "\t Date" << endl;;
 
 	if (sortSeq == 1) {
-		cout << "*---------------------------------------------------------------------------*" << endl;
 		for (int i = 0; i < row; i++) {
-			for (int j = 0; j < col; j++) {
-				cout << A[i][j] << " | ";
-			}
+			
+			cout << setw(40) << A[i][0];
+			cout << setw(21) << A[i][1];
+			cout << setw(34) << A[i][2];
+			cout << setw(35) << A[i][3];
+			cout << setw(7) << "RM" << fixed << setprecision(2) << A[i][4];
+			cout << setw(8) << A[i][5];
+			cout << setw(16) << A[i][6];
+			cout << setw(15) << A[i][7];
 			cout << endl;
 		}
+		cout << endl;
 	}
+
 	else if (sortSeq == 2) {
 		cout << "*---------------------------------------------------------------------------*" << endl;
 		for (int i = row - 1; i >= 0; i--) {
-			for (int j = 0; j < col; j++) {
-				cout << A[i][j] << " | ";
-			}
+			cout << setw(40) << A[i][0];
+			cout << setw(21) << A[i][1];
+			cout << setw(34) << A[i][2];
+			cout << setw(35) << A[i][3];
+			cout << setw(7) << "RM" << fixed << setprecision(2) << A[i][4];
+			cout << setw(8) << A[i][5];
+			cout << setw(16) << A[i][6];
+			cout << setw(15) << A[i][7];
 			cout << endl;
 		}
+		cout << endl;
 	}
 
 }
@@ -1586,18 +1565,160 @@ void Purchase::sortPurchase() {
 	if (sortSeq == 1) {
 		cout << "*---------------------------------------------------------------------------*" << endl;
 		for (int i = 0; i < row; i++) {
-			for (int j = 0; j < col; j++) {
-				cout << P[i][j] << " | ";
+
+			//store as string
+			string strISBN = P[i][1];
+			string strQty = P[i][2];
+			string strPrice = P[i][3];
+			string strTotal = P[i][4];
+
+			//create vector
+			vector<string> strbooksISBNs;
+			vector<string> strpurchaseQuantity;
+			vector<string> strbooksPricePP;
+			vector<string> strtotalPricePP;
+
+			//make each variable (which is a line with delimiter comma into a stringstream
+			stringstream ss1(strISBN);
+			stringstream ss2(strQty);
+			stringstream ss3(strPrice);
+			stringstream ss4(strTotal);
+
+			//source code: https://www.geeksforgeeks.org/program-to-parse-a-comma-separated-string-in-c/
+			//keep pushing the substr
+
+			//ISBN
+			while (ss1.good()) {
+				string substr;
+				getline(ss1, substr, ',');
+				strbooksISBNs.push_back(substr);
 			}
+
+			//Qty
+			while (ss2.good()) {
+				string substr;
+				getline(ss2, substr, ',');
+				strpurchaseQuantity.push_back(substr);
+			}
+
+			//price per book
+			while (ss3.good()) {
+				string substr;
+				getline(ss3, substr, ',');
+				strbooksPricePP.push_back(substr);
+			}
+
+			//totalpriceperbook
+			while (ss4.good()) {
+				string substr;
+				getline(ss4, substr, ',');
+				strtotalPricePP.push_back(substr);
+			}
+
+			cout << "*----------------------------------- " << P[i][0] << " -----------------------------------*" << endl;
 			cout << endl;
+			cout << "\t Book ISBN";
+			cout << "\t Quantity";
+			cout << "\t Price Per Book";
+			cout << "\t\t   Total Price Per Book" << endl;
+
+
+			for (size_t i = 0; i < strbooksISBNs.size(); i++) {
+				cout << "    " << strbooksISBNs[i];
+				cout << "\t\t" << strpurchaseQuantity[i];
+				cout << "\t\tRM" << strbooksPricePP[i];
+				cout << "\t\t\t\tRM" << strtotalPricePP[i];
+				cout << endl;
+			}
+
+			cout << endl;
+			cout << "\t\t\t\t\t\t\t\t\t";
+			cout << "Tax   : RM" << P[i][5] << endl;
+			cout << "\t\t\t\t\t\t\t\t\t";
+			cout << "Total : RM" << P[i][6] << endl;
+			cout << "\t\t\t\t\t\t\t\t\t";
+			cout << "Date  : " << P[i][7] << endl;
+			cout << endl;
+
 		}
 	}
+	
 	else if (sortSeq == 2) {
 		cout << "*---------------------------------------------------------------------------*" << endl;
 		for (int i = row - 1; i >= 0; i--) {
-			for (int j = 0; j < col; j++) {
-				cout << P[i][j] << " | ";
+
+			//store as string
+			string strISBN = P[i][1];
+			string strQty = P[i][2];
+			string strPrice = P[i][3];
+			string strTotal = P[i][4];
+
+			//create vector
+			vector<string> strbooksISBNs;
+			vector<string> strpurchaseQuantity;
+			vector<string> strbooksPricePP;
+			vector<string> strtotalPricePP;
+
+			//make each variable (which is a line with delimiter comma into a stringstream
+			stringstream ss1(strISBN);
+			stringstream ss2(strQty);
+			stringstream ss3(strPrice);
+			stringstream ss4(strTotal);
+
+			//source code: https://www.geeksforgeeks.org/program-to-parse-a-comma-separated-string-in-c/
+			//keep pushing the substr
+
+			//ISBN
+			while (ss1.good()) {
+				string substr;
+				getline(ss1, substr, ',');
+				strbooksISBNs.push_back(substr);
 			}
+
+			//Qty
+			while (ss2.good()) {
+				string substr;
+				getline(ss2, substr, ',');
+				strpurchaseQuantity.push_back(substr);
+			}
+
+			//price per book
+			while (ss3.good()) {
+				string substr;
+				getline(ss3, substr, ',');
+				strbooksPricePP.push_back(substr);
+			}
+
+			//totalpriceperbook
+			while (ss4.good()) {
+				string substr;
+				getline(ss4, substr, ',');
+				strtotalPricePP.push_back(substr);
+			}
+
+			cout << "*----------------------------------- " << P[i][0] << " -----------------------------------*" << endl;
+			cout << endl;
+			cout << "\t Book ISBN";
+			cout << "\t Quantity";
+			cout << "\t Price Per Book";
+			cout << "\t\t   Total Price Per Book" << endl;
+
+
+			for (size_t i = 0; i < strbooksISBNs.size(); i++) {
+				cout << "    " << strbooksISBNs[i];
+				cout << "\t\t" << strpurchaseQuantity[i];
+				cout << "\t\tRM" << strbooksPricePP[i];
+				cout << "\t\t\t\tRM" << strtotalPricePP[i];
+				cout << endl;
+			}
+
+			cout << endl;
+			cout << "\t\t\t\t\t\t\t\t\t";
+			cout << "Tax   : RM" << P[i][5] << endl;
+			cout << "\t\t\t\t\t\t\t\t\t";
+			cout << "Total : RM" << P[i][6] << endl;
+			cout << "\t\t\t\t\t\t\t\t\t";
+			cout << "Date  : " << P[i][7] << endl;
 			cout << endl;
 		}
 	}
