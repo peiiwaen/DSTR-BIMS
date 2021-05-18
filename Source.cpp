@@ -15,23 +15,11 @@ using namespace std;
 //////////////////////////// End of top sections ////////////////////////////
 
 struct Books {
-private:
-
-public:  
+public:
+	//variables
 	ofstream booksFile;
 	stringstream streambP;
-	void addBooks();
-	void readFromFileToList();
-	void sortBooks();
-	void displayAllBooks();
-	void deleteBooks();
-	Books* next;
 	bool searchFound = false, genreFound = false;
-	void searchBooks();
-	void filterBooks();
-	void updateBooks();
-	void deductBooks(string i, int p);
-	void clearBookList();
 	int lineCount;
 	string title;
 	string ISBN;
@@ -41,10 +29,26 @@ public:
 	string genre;
 	string date;
 	int stock = 0;
+
+	//pointer
+	Books* next;
+
+	//functions
+	void addBooks();
+	void readFromFileToList();
+	void sortBooks();
+	void displayAllBooks();
+	void deleteBooks();
+	void searchBooks();
+	void filterBooks();
+	void updateBooks();
+	void deductBooks(string i, int p);
+	void clearBookList();
 };
 
 struct Purchase {
 private:
+	//variables
 	int noLine = 0;
 	int purchaseQty = 0, typesOfBooks = 0, numberOfComma = 0;
 	float pricePerBook = 0.00, totalPricePerBook = 0.00, totalPriceNoTax = 0.00, tax = 0.00, totalFinalPrice = 0.00;
@@ -53,27 +57,34 @@ private:
 	//temp string
 	string sPurchaseQty, sPricePerBook, sTotalPricePerBook, sPurchaseISBN;
 
+	//stacks
 	stack<string> booksISBNs;
 	stack<int> purchaseQuantity;
 	stack<string> booksPricePP;
 	stack<string> totalPricePP;
+
 public:
+	//variables
 	ofstream purchaseFile;
 	stringstream streampP;
 	stringstream streamtpPP;
 	stringstream totalPriceOfEachBooks;
 	stringstream totalFinal;
 	stringstream taxPrice;
+	bool purchaseFound = false;
+
+	//functions
 	string idIncrement();
 	void addPurchase();
 	void viewAllPurchase();
 	void clearPurchaseList();
 	void readPurchaseIntoList();
 	void viewPurchaseDetail();
-	void sortPurchase(); //not yet
+	void sortPurchase(); 
 	void countNumberOfComma(string s);
+
+	//pointers
 	Purchase* next;
-	bool purchaseFound = false;
 };
 
 
@@ -125,7 +136,7 @@ void Books::addBooks() {
 	}
 	cout << "Enter genre of book: ";
 	cin >> genre;
-	
+
 	date = getDate();
 
 	streambP << fixed << setprecision(2) << bP;
@@ -138,18 +149,19 @@ void Books::addBooks() {
 	//if file is open
 	if (booksFile.is_open()) {
 		booksFile << bookDetail << endl;
+		cout << "*--------------------------------------------------*" << endl;
 		cout << "Successfully added new book" << endl;
 		booksFile.close();
 	}
 	else {
 		cout << "Fail to open file." << endl;
 	}
-	
+
 }
 
 //////////////////////////// end of AddBook ////////////////////////////
-void Books::updateBooks() {
 
+void Books::updateBooks() {
 
 	int updateChoice;
 	int updateCategory;
@@ -182,17 +194,15 @@ void Books::updateBooks() {
 
 		ifstream booksFile("books.txt");
 
-		cout << "Update choices:\n1. Update stock\n2. Update price\n3. Update both\n4. Exit\nEnter choice: ";
+		cout << "Update choices:\n1. Update stock\n2. Update price\n3. Update both\nEnter choice: ";
 		cin >> updateCategory;
 		cout << endl;
 
-		while (updateCategory < 1 || updateCategory > 4) {
-			cout << "ERROR! Value entered not recognized!\nUpdate choices:\n1. Update stock\n2. Update price\n3. Update both\n4. Exit\nEnter choice: ";
+		while (updateCategory < 1 || updateCategory > 3) {
+			cout << "ERROR! Value entered not recognized!\nUpdate choices:\n1. Update stock\n2. Update price\n3. Update both\nEnter choice: ";
 			cin >> updateCategory;
 			cout << endl;
 		}
-
-		if (updateCategory == 4) { /*main()*/ }
 
 		if (booksFile.is_open()) {
 
@@ -232,7 +242,7 @@ void Books::updateBooks() {
 						//update stock
 						int newstock;
 						float newprice;
-						
+
 					case 1:
 						cout << "Enter current value of stock to update: ";
 						cin >> newstock;
@@ -319,7 +329,10 @@ void Books::updateBooks() {
 }
 
 //////////////////////////// end of updateBooks ////////////////////////////
+
 void Books::deductBooks(string i, int p) {
+
+	//this function is similar to update books though with the parameter of i (ISBN of book to be updated) and p (how many books to deduct from it)
 
 	string ISBNs;
 	string stocks;
@@ -327,90 +340,87 @@ void Books::deductBooks(string i, int p) {
 	string line;
 	int lineNo = 0;
 	string tempBookDetails;
-	
+
 	string newBookDetails;
 
-		//create new file name tempBooks to store all the data that is not deleted
-		ofstream tempBooksFile("tempBooks.txt");
-		//must close the file once it is done created
-		tempBooksFile.close();
+	//create new file name tempBooks to store all the data that is not deleted
+	ofstream tempBooksFile("tempBooks.txt");
+	//must close the file once it is done created
+	tempBooksFile.close();
 
-		ifstream booksFile("books.txt");
+	ifstream booksFile("books.txt");
 
 
-		if (booksFile.is_open()) {
+	if (booksFile.is_open()) {
 
-			while (getline(booksFile, line)) {
-				stringstream ss(line);
-				getline(ss, title, '|');
-				getline(ss, ISBNs, '|');
-				getline(ss, author, '|');
-				getline(ss, publisher, '|');
-				getline(ss, bPs, '|');
-				getline(ss, stocks, '|');
-				getline(ss, genre, '|');
-				getline(ss, date, '|');
+		while (getline(booksFile, line)) {
+			stringstream ss(line);
+			getline(ss, title, '|');
+			getline(ss, ISBNs, '|');
+			getline(ss, author, '|');
+			getline(ss, publisher, '|');
+			getline(ss, bPs, '|');
+			getline(ss, stocks, '|');
+			getline(ss, genre, '|');
+			getline(ss, date, '|');
 
-				//starts checking if book to be deleted matches with the data of the row
-				if (i != ISBNs) {
-					if (lineNo == 0) {
-						tempBooksFile.open("tempBooks.txt");
-						tempBooksFile << line << endl;
-						tempBooksFile.close();
-					}
-					else {
-						//append: write new line
-						tempBooksFile.open("tempBooks.txt", ios::app);
-						//if file is open
-						if (tempBooksFile.is_open()) {
-							tempBooksFile << line << endl;
-							tempBooksFile.close();
-						}
-						else {
-							cout << "Fail to open file." << endl;
-						}
-					}
+			//starts checking if book to be deleted matches with the data of the row
+			if (i != ISBNs) {
+				if (lineNo == 0) {
+					tempBooksFile.open("tempBooks.txt");
+					tempBooksFile << line << endl;
+					tempBooksFile.close();
 				}
 				else {
-					
-						//update stock
-					int newstock = stoi(stocks) - p;
-
-						newBookDetails = title + "|" + ISBNs + "|" + author + "|" + publisher + "|" + bPs + "|" + to_string(newstock) + "|" + genre + "|" + date;
-	
 					//append: write new line
 					tempBooksFile.open("tempBooks.txt", ios::app);
 					//if file is open
 					if (tempBooksFile.is_open()) {
-						tempBooksFile << newBookDetails << endl;
+						tempBooksFile << line << endl;
 						tempBooksFile.close();
 					}
 					else {
 						cout << "Fail to open file." << endl;
 					}
-					
+				}
+			}
+			else {
+
+				//update stock by taking current stock minus with the number of books sold
+				int newstock = stoi(stocks) - p;
+
+				newBookDetails = title + "|" + ISBNs + "|" + author + "|" + publisher + "|" + bPs + "|" + to_string(newstock) + "|" + genre + "|" + date;
+
+				//append: write new line
+				tempBooksFile.open("tempBooks.txt", ios::app);
+				//if file is open
+				if (tempBooksFile.is_open()) {
+					tempBooksFile << newBookDetails << endl;
+					tempBooksFile.close();
+				}
+				else {
+					cout << "Fail to open file." << endl;
 				}
 
-				lineNo++;
 			}
-			tempBooksFile.close();
-			// end of while
+
+			lineNo++;
 		}
-		else {
-			cout << "Failed to open book" << endl;
-		}
-	
+		tempBooksFile.close();
+		// end of while
+	}
+	else {
+		cout << "Failed to open book" << endl;
+	}
 
 	booksFile.close();
 
-		remove("books.txt");
-		rename("tempBooks.txt", "books.txt");
-		clearBookList();
-	
+	remove("books.txt"); //remove the old text file and rename the temporary text file as the name of old text file
+	rename("tempBooks.txt", "books.txt");
+	clearBookList();
+
 }
 //////////////////////////// end of deductBooks ////////////////////////////
-
-
 
 void Books::readFromFileToList() {
 
@@ -425,9 +435,9 @@ void Books::readFromFileToList() {
 
 	if (booksFile.is_open()) {
 
-		while (getline(booksFile,line)) {
+		while (getline(booksFile, line)) {
 			stringstream ss(line);
-			getline(ss, title, '|'); 
+			getline(ss, title, '|');
 			getline(ss, ISBNs, '|');
 			getline(ss, author, '|');
 			getline(ss, publisher, '|');
@@ -441,15 +451,13 @@ void Books::readFromFileToList() {
 			streambP << fixed << setprecision(2) << bPs;
 			string bookPrice = streambP.str();
 
-			
-
 			//use new instead of malloc, if not wont be able to read string //checkout this source https://www.programmersought.com/article/87014391850/ 
 			//+ https://www.geeksforgeeks.org/new-vs-malloc-and-free-vs-delete-in-c/#:~:text=malloc()%3A%20It%20is%20a,%E2%80%9Cmalloc()%E2%80%9D%20does%20not.
 			/*struct Books* new_Book = (struct Books*)malloc(sizeof(struct Books));*/
 
 			struct Books* new_Book = new Books;
 
-			new_Book->ISBN = ISBNs; 
+			new_Book->ISBN = ISBNs;
 			new_Book->title = title;
 			new_Book->author = author;
 			new_Book->publisher = publisher;
@@ -470,9 +478,7 @@ void Books::readFromFileToList() {
 				}
 				last->next = new_Book;
 			}
-			
 		}
-
 		booksFile.close();
 	}
 
@@ -485,7 +491,6 @@ void Books::readFromFileToList() {
 //////////////////////////// end of readFromFile ////////////////////////////
 
 void Books::displayAllBooks() {
-
 
 	int noBooks = 0;
 	struct Books* ptr;
@@ -505,19 +510,16 @@ void Books::displayAllBooks() {
 	while (ptr != NULL) {
 		noBooks++;
 
-
 		cout << setw(40) << ptr->title;
 		cout << setw(21) << ptr->ISBN;
 		cout << setw(34) << ptr->author;
 		cout << setw(35) << ptr->publisher;
 		cout << setw(7) << "RM" << fixed << setprecision(2) << ptr->bP;
-		cout << setw(8) <<  ptr->stock;
+		cout << setw(8) << ptr->stock;
 		cout << setw(16) << ptr->genre;
 		cout << setw(15) << ptr->date;
 
 		cout << endl;
-		/*cout << ptr->title << "|" << ptr->ISBN << "|" << ptr->author << "|" << ptr->publisher << "|" << ptr->bP << "|" << ptr->stock << "|" << ptr->genre << "|" << ptr->date << endl;\*/
-		/*cout << "*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*" << endl;*/
 		ptr = ptr->next;
 	}
 
@@ -654,9 +656,7 @@ void Books::sortBooks() {
 					A[i][6] = genre;
 					A[i][7] = date;
 				}
-
 			}
-
 			tempLine++;
 		}
 
@@ -667,9 +667,11 @@ void Books::sortBooks() {
 		for (int i = 0; i < row - 1; i++) {
 			min = i;
 			for (int j = i + 1; j < row; j++) {
-				if (A[j][1] < A[min][1]) {
+				if (A[j][1] < A[min][1]) { //if A[1][1] is smaller than A[0][1]
 					for (int k = 0; k < col; k++) {
-						swap(A[min][k], A[j][k]);
+						swap(A[min][k], A[j][k]); //if next value is smaller than current position value, swap position with it
+						/*eg: If value of A[1][1] = 2, and value of A[0][1] = 3,
+						they will swap positiona and therefore A[0][1] will be 2, and A[1][1] will be 3*/
 					}
 				}
 			}
@@ -689,7 +691,7 @@ void Books::sortBooks() {
 			}
 		}
 		break;
-	case 3: 
+	case 3:
 		//sort based on a Stock
 		for (int i = 0; i < row - 1; i++) {
 			min = i;
@@ -708,7 +710,7 @@ void Books::sortBooks() {
 
 	cout << "*--------------- Book List ---------------*" << endl;
 
-	cout << endl;
+	 
 	cout << setw(40) << right << "Book Title";
 	cout << setw(16) << right << "\t ISBN";
 	cout << setw(30) << right << "\t Author";
@@ -720,7 +722,7 @@ void Books::sortBooks() {
 
 	if (sortSeq == 1) {
 		for (int i = 0; i < row; i++) {
-			
+
 			cout << setw(40) << A[i][0];
 			cout << setw(21) << A[i][1];
 			cout << setw(34) << A[i][2];
@@ -735,7 +737,6 @@ void Books::sortBooks() {
 	}
 
 	else if (sortSeq == 2) {
-		cout << "*---------------------------------------------------------------------------*" << endl;
 		for (int i = row - 1; i >= 0; i--) {
 			cout << setw(40) << A[i][0];
 			cout << setw(21) << A[i][1];
@@ -785,19 +786,19 @@ void Books::deleteBooks() {
 
 		if (booksFile.is_open()) {
 
-		while (getline(booksFile, line)) {
-			stringstream ss(line);
-			getline(ss, title, '|');
-			getline(ss, ISBNs, '|');
-			getline(ss, author, '|');
-			getline(ss, publisher, '|');
-			getline(ss, bPs, '|');
-			getline(ss, stocks, '|');
-			getline(ss, genre, '|');
-			getline(ss, date, '|');
+			while (getline(booksFile, line)) {
+				stringstream ss(line);
+				getline(ss, title, '|');
+				getline(ss, ISBNs, '|');
+				getline(ss, author, '|');
+				getline(ss, publisher, '|');
+				getline(ss, bPs, '|');
+				getline(ss, stocks, '|');
+				getline(ss, genre, '|');
+				getline(ss, date, '|');
 
 
-			//starts checking if book to be deleted matches with the data of the row
+				//starts checking if book to be deleted matches with the data of the row
 				if (ISBN != ISBNs) {
 					if (lineNo == 0) {
 						tempBooksFile.open("tempBooks.txt");
@@ -820,16 +821,16 @@ void Books::deleteBooks() {
 				else {
 					yesDelete = true;
 				}
-	
-			lineNo++;
+
+				lineNo++;
+			}
+			tempBooksFile.close();
+			// end of while
 		}
-		tempBooksFile.close();
-		// end of while
-	}
 		else {
 			cout << "Failed to open book" << endl;
 		}
-}
+	}
 
 	booksFile.close();
 
@@ -841,7 +842,7 @@ void Books::deleteBooks() {
 	else {
 		cout << "*--------------- Deletion of book cancelled. ---------------*" << endl;
 	}
-	
+
 }
 
 //////////////////////////// end of deleteBooks  ////////////////////////////
@@ -853,22 +854,18 @@ void Books::searchBooks()
 	int searchType;
 	string I;
 	string T;
-	cout << "*--------------- Search Book ---------------*\nEnter the category you would like to search for book:\n1. Title\n2. ISBN\n3. Exit\nEnter your choice: ";
+	cout << "*--------------- Search Book ---------------*\nEnter the category you would like to search for book:\n1. Title\n2. ISBN\nEnter your choice: ";
 	cin >> searchType;
 	cout << "*--------------------------------------------------*" << endl;
 
 	//Validation
-	while (searchType < 1 || searchType > 3)
+	while (searchType < 1 || searchType > 2)
 	{
-		cout << "ERROR! Value entered is out of bound!\n*--------------- Search Book ---------------*\nEnter the category you would like to search for book:\n1. Title\n2. ISBN\n3. Exit\nEnter your choice: ";
+		cout << "ERROR! Value entered is out of bound!\n*--------------- Search Book ---------------*\nEnter the category you would like to search for book:\n1. Title\n2. ISBN\nEnter your choice: ";
 		cin >> searchType;
 		cout << "*--------------------------------------------------*" << endl;
 	}
 
-	if (searchType == 3) { /*main()*/ }
-
-	//readFromFileToList() function done, so directly access the link list
-	
 	struct Books* ptr = head;
 
 	switch (searchType)
@@ -877,6 +874,7 @@ void Books::searchBooks()
 		cout << "Enter the title of book to search: ";
 		cin.ignore();
 		getline(cin, T);
+		cout << endl;
 		while (ptr != NULL)
 		{
 			if (ptr->title != T)
@@ -885,15 +883,34 @@ void Books::searchBooks()
 			}
 			else {
 				cout << "*--------------- Book Found! ---------------*" << endl;
-				cout << ptr->title << "|" << ptr->ISBN << "|" << ptr->author << "|" << ptr->publisher << "|" << ptr->bP << "|" << ptr->stock << "|" << ptr->genre << "|" << ptr->date << endl;
-				ISBN = ptr->ISBN;
+				
+				cout << endl;
+				cout << setw(40) << right << "Book Title";
+				cout << setw(16) << right << "\t ISBN";
+				cout << setw(30) << right << "\t Author";
+				cout << setw(30) << right << "\t Publisher";
+				cout << setw(12) << right << "\t Price";
+				cout << setw(5) << right << "\t Stock";
+				cout << setw(15) << right << "\t Genre";
+				cout << setw(13) << right << "\t Date" << endl;;
+
+					cout << setw(40) << ptr->title;
+					cout << setw(21) << ptr->ISBN;
+					cout << setw(34) << ptr->author;
+					cout << setw(35) << ptr->publisher;
+					cout << setw(7) << "RM" << fixed << setprecision(2) << ptr->bP;
+					cout << setw(8) << ptr->stock;
+					cout << setw(16) << ptr->genre;
+					cout << setw(15) << ptr->date;
+					cout << endl;
+					cout << endl;
+
 				searchFound = true;
+				ISBN = ptr->ISBN;
 				ptr = NULL;
+
 			}
 		}
-
-
-
 		break;
 	case 2:
 		cout << "Enter the ISBN of book to search: ";
@@ -905,17 +922,34 @@ void Books::searchBooks()
 			}
 			else {
 				cout << "*--------------- Book Found! ---------------*" << endl;
-				cout << ptr->title << "|" << ptr->ISBN << "|" << ptr->author << "|" << ptr->publisher << "|" << ptr->bP << "|" << ptr->stock << "|" << ptr->genre << "|" << ptr->date << endl;
-				ISBN = ptr->ISBN;
+				cout << endl;
+				cout << setw(40) << right << "Book Title";
+				cout << setw(16) << right << "\t ISBN";
+				cout << setw(30) << right << "\t Author";
+				cout << setw(30) << right << "\t Publisher";
+				cout << setw(12) << right << "\t Price";
+				cout << setw(5) << right << "\t Stock";
+				cout << setw(15) << right << "\t Genre";
+				cout << setw(13) << right << "\t Date" << endl;;
+
+				cout << setw(40) << ptr->title;
+				cout << setw(21) << ptr->ISBN;
+				cout << setw(34) << ptr->author;
+				cout << setw(35) << ptr->publisher;
+				cout << setw(7) << "RM" << fixed << setprecision(2) << ptr->bP;
+				cout << setw(8) << ptr->stock;
+				cout << setw(16) << ptr->genre;
+				cout << setw(15) << ptr->date;
+				cout << endl;
+				cout << endl;
 				searchFound = true;
 				ptr = NULL;
+
+				ISBN = I;
 			}
 		}
-
-
 		break;
 	}
-
 }
 
 //////////////////////////// end of searchBooks ////////////////////////////
@@ -948,7 +982,7 @@ void Books::filterBooks()
 	while (ptr != NULL)
 	{
 		if (ptr->genre == G)
-		{	
+		{
 			cout << setw(40) << ptr->title;
 			cout << setw(21) << ptr->ISBN;
 			cout << setw(34) << ptr->author;
@@ -957,20 +991,16 @@ void Books::filterBooks()
 			cout << setw(8) << ptr->stock;
 			cout << setw(16) << ptr->genre;
 			cout << setw(15) << ptr->date;
-
-			cout << endl;
 			cout << endl;
 
 			genreFound = true;
 			lineCount++;
 			ptr = ptr->next;
-			
 		}
 		else {
 			ptr = ptr->next;
 		}
 	}
-
 }
 
 //////////////////////////// end of filterBooks ////////////////////////////
@@ -989,17 +1019,15 @@ string Purchase::idIncrement() {
 	if (purchaseFile.is_open()) {
 
 		if (purchaseFile.peek() == ifstream::traits_type::eof()) {
-
-			numberIncrement = 1;
+			numberIncrement = 1; //if bookFile is empty with no lines of data, start the PID from PID-1
 			finalID = to_string(numberIncrement);
 			newID = purchaseID + finalID;
 			return newID;
-
 		}
 		else {
 			while (getline(purchaseFile, line)) {
 				stringstream ss(line);
-				getline(ss, ID, '|');
+				getline(ss, ID, '|'); //get the last line of number
 				//PID-1
 				stringstream ss2(ID);
 				getline(ss2, IDConst, '-');
@@ -1028,19 +1056,16 @@ void Purchase::addPurchase() {
 
 	cout << "Enter total number of book types: ";
 	cin >> typesOfBooks;
-	
 
 	while (typesOfBooks == 0) {
 		cout << "\nERROR! Value is negative!\nEnter total number of book types: ";
 		cin >> typesOfBooks;
 	}
 
-
 	while (typesOfBooks > b.lineCount) {
 		cout << "\nERROR! Value is invalid!\nEnter total number of book types: ";
 		cin >> typesOfBooks;
 	}
-
 
 	for (int i = 0; i < typesOfBooks; i++) {
 
@@ -1048,7 +1073,7 @@ void Purchase::addPurchase() {
 
 		bool searchFound = false;
 
-		cout << "*--------------- Book " << i+1 << " --------------*" << endl;
+		cout << "*--------------- Book " << i + 1 << " --------------*" << endl;
 
 		cout << "Enter ISBN of book: ";
 		cin >> purchaseISBN;
@@ -1059,8 +1084,6 @@ void Purchase::addPurchase() {
 		while (ptr != NULL)
 		{
 			////////////////////////
-
-			/////////////////////
 
 			if (ptr->ISBN != purchaseISBN) {
 				ptr = ptr->next;
@@ -1139,14 +1162,14 @@ void Purchase::addPurchase() {
 			}
 		}
 
-			//calculate total price of the book itself
-			totalPricePerBook = purchaseQty * pricePerBook;
-			totalPriceOfEachBooks << fixed << setprecision(2) << totalPricePerBook;
-			totalPricePP.push(totalPriceOfEachBooks.str());
+		//calculate total price of the book itself
+		totalPricePerBook = purchaseQty * pricePerBook;
+		totalPriceOfEachBooks << fixed << setprecision(2) << totalPricePerBook;
+		totalPricePP.push(totalPriceOfEachBooks.str());
 
-			//need to clear stringstream: https://stackoverflow.com/questions/20731/how-do-you-clear-a-stringstream-variable
-			totalPriceOfEachBooks.str(string());
-			streamtpPP.str(string());
+		//need to clear stringstream: https://stackoverflow.com/questions/20731/how-do-you-clear-a-stringstream-variable
+		totalPriceOfEachBooks.str(string());
+		streamtpPP.str(string());
 	}
 
 	string totalEachBook;
@@ -1164,9 +1187,9 @@ void Purchase::addPurchase() {
 		}
 		else {
 			booksBought = booksBought + booksISBNs.top();
-		booksISBNs.pop();
+			booksISBNs.pop();
 		}
-	
+
 		if (purchaseQuantity.size() != 1) {
 			booksNumber = booksNumber + to_string(purchaseQuantity.top()) + ',';
 			purchaseQuantity.pop();
@@ -1175,7 +1198,7 @@ void Purchase::addPurchase() {
 			booksNumber = booksNumber + to_string(purchaseQuantity.top());
 			purchaseQuantity.pop();
 		}
-		
+
 
 		if (totalPricePP.size() != 1) {
 			totalEachBook = totalEachBook + totalPricePP.top() + ",";
@@ -1196,13 +1219,13 @@ void Purchase::addPurchase() {
 			eachBookPrice = eachBookPrice + booksPricePP.top();
 			booksPricePP.pop();
 		}
-		
+
 	}
 
 	//adding tax
 	tax = totalPriceNoTax * 0.06;
 	totalFinalPrice = tax + totalPriceNoTax;
-	
+
 	//Set the final price to 2 dc, then convert to string for storing
 	totalFinal << fixed << setprecision(2) << totalFinalPrice;
 	taxPrice << fixed << setprecision(2) << tax;
@@ -1213,7 +1236,7 @@ void Purchase::addPurchase() {
 	//purchase date
 	purchaseDate = getDate();
 
-	string purchaseDetail = idIncrement() + "|" + booksBought + "|" + booksNumber + "|" + eachBookPrice +"|" + totalEachBook + "|" + finalTax + "|" + finalPrice + "|" + purchaseDate;
+	string purchaseDetail = idIncrement() + "|" + booksBought + "|" + booksNumber + "|" + eachBookPrice + "|" + totalEachBook + "|" + finalTax + "|" + finalPrice + "|" + purchaseDate;
 	/*cout << purchaseDetail;*/
 
 	//append: write new line
@@ -1314,35 +1337,35 @@ void Purchase::viewAllPurchase() {
 			getline(ss4, substr, ',');
 			strtotalPricePP.push_back(substr);
 		}
-		
-			cout << "*----------------------------------- " << purchaseID << " -----------------------------------*" << endl;
+
+		cout << "*----------------------------------- " << ptr->purchaseID << " -----------------------------------*" << endl;
+		cout << endl;
+		cout << "\t Book ISBN";
+		cout << "\t Quantity";
+		cout << "\t Price Per Book";
+		cout << "\t\t   Total Price Per Book" << endl;
+
+
+		for (size_t i = 0; i < strbooksISBNs.size(); i++) {
+			cout << "    " << strbooksISBNs[i];
+			cout << "\t\t" << strpurchaseQuantity[i];
+			cout << "\t\tRM" << strbooksPricePP[i];
+			cout << "\t\t\t\tRM" << strtotalPricePP[i];
 			cout << endl;
-			cout << "\t Book ISBN";
-			cout << "\t Quantity";
-			cout << "\t Price Per Book";
-			cout << "\t\t   Total Price Per Book" << endl;
+		}
 
+		cout << endl;
+		cout << "\t\t\t\t\t\t\t\t\t";
+		cout << "Tax   : RM" << ptr->tax << endl;
+		cout << "\t\t\t\t\t\t\t\t\t";
+		cout << "Total : RM" << ptr->totalFinalPrice << endl;
+		cout << "\t\t\t\t\t\t\t\t\t";
+		cout << "Date  : " << ptr->purchaseDate << endl;
+		cout << endl;
 
-			for (size_t i = 0; i < strbooksISBNs.size(); i++) {
-				cout << "    " << strbooksISBNs[i];
-				cout << "\t\t" << strpurchaseQuantity[i];
-				cout << "\t\tRM" << strbooksPricePP[i];
-				cout << "\t\t\t\tRM" << strtotalPricePP[i];
-				cout << endl;
-			}
+		noPurchases++;
+		ptr = ptr->next;
 
-			cout << endl;
-			cout << "\t\t\t\t\t\t\t\t\t";
-			cout << "Tax   : RM" << ptr->tax << endl;
-			cout << "\t\t\t\t\t\t\t\t\t";
-			cout << "Total : RM" << ptr->totalFinalPrice << endl;
-			cout << "\t\t\t\t\t\t\t\t\t";
-			cout << "Date  : " << ptr->purchaseDate << endl;
-			cout << endl;
-
-			noPurchases++;
-			ptr = ptr -> next;
-		
 	}
 
 	if (noPurchases != 0) {
@@ -1642,7 +1665,7 @@ void Purchase::sortPurchase() {
 
 		}
 	}
-	
+
 	else if (sortSeq == 2) {
 		cout << "*---------------------------------------------------------------------------*" << endl;
 		for (int i = row - 1; i >= 0; i--) {
@@ -1736,105 +1759,102 @@ void Purchase::viewPurchaseDetail() {
 	struct Purchase* ptr = head2;
 	ptr = head2;
 
-	
-		cout << "Enter the purchase record ID to search: ";
-		cin >> searchID;
-		
-		while (ptr != NULL)
-		{
 
-			//store as string
-			string strISBN = ptr->sPurchaseISBN;
-			string strQty = ptr->sPurchaseQty;
-			string strPrice = ptr->sPricePerBook;
-			string strTotal = ptr->sTotalPricePerBook;
+	cout << "Enter the purchase record ID to search: ";
+	cin >> searchID;
 
-			//create vector
-			vector<string> strbooksISBNs;
-			vector<string> strpurchaseQuantity;
-			vector<string> strbooksPricePP;
-			vector<string> strtotalPricePP;
+	while (ptr != NULL)
+	{
 
-			//make each variable (which is a line with delimiter comma into a stringstream
-			stringstream ss1(strISBN);
-			stringstream ss2(strQty);
-			stringstream ss3(strPrice);
-			stringstream ss4(strTotal);
+		//store as string
+		string strISBN = ptr->sPurchaseISBN;
+		string strQty = ptr->sPurchaseQty;
+		string strPrice = ptr->sPricePerBook;
+		string strTotal = ptr->sTotalPricePerBook;
 
-			//source code: https://www.geeksforgeeks.org/program-to-parse-a-comma-separated-string-in-c/
-			//keep pushing the substr
+		//create vector
+		vector<string> strbooksISBNs;
+		vector<string> strpurchaseQuantity;
+		vector<string> strbooksPricePP;
+		vector<string> strtotalPricePP;
 
-			//ISBN
-			while (ss1.good()) {
-				string substr;
-				getline(ss1, substr, ',');
-				strbooksISBNs.push_back(substr);
-			}
+		//make each variable (which is a line with delimiter comma into a stringstream
+		stringstream ss1(strISBN);
+		stringstream ss2(strQty);
+		stringstream ss3(strPrice);
+		stringstream ss4(strTotal);
 
-			//Qty
-			while (ss2.good()) {
-				string substr;
-				getline(ss2, substr, ',');
-				strpurchaseQuantity.push_back(substr);
-			}
+		//source code: https://www.geeksforgeeks.org/program-to-parse-a-comma-separated-string-in-c/
+		//keep pushing the substr
 
-			//price per book
-			while (ss3.good()) {
-				string substr;
-				getline(ss3, substr, ',');
-				strbooksPricePP.push_back(substr);
-			}
-
-			//totalpriceperbook
-			while (ss4.good()) {
-				string substr;
-				getline(ss4, substr, ',');
-				strtotalPricePP.push_back(substr);
-			}
-
-
-			if (ptr->purchaseID != searchID)
-			{
-				ptr = ptr->next;
-			}
-			else {
-				cout << "*--------------- Purchase Found! ---------------*" << endl;
-				cout << "*----------------------------------- " << ptr->purchaseID << " -----------------------------------*" << endl;
-				cout << endl;
-				cout << "\t Book ISBN";
-				cout << "\t Quantity";
-				cout << "\t Price Per Book";
-				cout << "\t\t   Total Price Per Book" << endl;
-
-
-				for (size_t i = 0; i < strbooksISBNs.size(); i++) {
-					cout << "    " << strbooksISBNs[i];
-					cout << "\t\t" << strpurchaseQuantity[i];
-					cout << "\t\tRM" << strbooksPricePP[i];
-					cout << "\t\t\t\tRM" << strtotalPricePP[i];
-					cout << endl;
-				}
-
-				cout << endl;
-				cout << "\t\t\t\t\t\t\t\t\t";
-				cout << "Tax   : RM" << ptr->tax << endl;
-				cout << "\t\t\t\t\t\t\t\t\t";
-				cout << "Total : RM" << ptr->totalFinalPrice << endl;
-				cout << "\t\t\t\t\t\t\t\t\t";
-				cout << "Date  : " << ptr->purchaseDate << endl;
-				cout << endl;
-
-				purchaseFound = true;
-				ptr = NULL;
-			}
+		//ISBN
+		while (ss1.good()) {
+			string substr;
+			getline(ss1, substr, ',');
+			strbooksISBNs.push_back(substr);
 		}
 
+		//Qty
+		while (ss2.good()) {
+			string substr;
+			getline(ss2, substr, ',');
+			strpurchaseQuantity.push_back(substr);
+		}
+
+		//price per book
+		while (ss3.good()) {
+			string substr;
+			getline(ss3, substr, ',');
+			strbooksPricePP.push_back(substr);
+		}
+
+		//totalpriceperbook
+		while (ss4.good()) {
+			string substr;
+			getline(ss4, substr, ',');
+			strtotalPricePP.push_back(substr);
+		}
+
+
+		if (ptr->purchaseID != searchID)
+		{
+			ptr = ptr->next;
+		}
+		else {
+			cout << "*--------------- Purchase Found! ---------------*" << endl;
+			cout << "*----------------------------------- " << ptr->purchaseID << " -----------------------------------*" << endl;
+			cout << endl;
+			cout << "\t Book ISBN";
+			cout << "\t Quantity";
+			cout << "\t Price Per Book";
+			cout << "\t\t   Total Price Per Book" << endl;
+
+
+			for (size_t i = 0; i < strbooksISBNs.size(); i++) {
+				cout << "    " << strbooksISBNs[i];
+				cout << "\t\t" << strpurchaseQuantity[i];
+				cout << "\t\tRM" << strbooksPricePP[i];
+				cout << "\t\t\t\tRM" << strtotalPricePP[i];
+				cout << endl;
+			}
+
+			cout << endl;
+			cout << "\t\t\t\t\t\t\t\t\t";
+			cout << "Tax   : RM" << ptr->tax << endl;
+			cout << "\t\t\t\t\t\t\t\t\t";
+			cout << "Total : RM" << ptr->totalFinalPrice << endl;
+			cout << "\t\t\t\t\t\t\t\t\t";
+			cout << "Date  : " << ptr->purchaseDate << endl;
+			cout << endl;
+
+			purchaseFound = true;
+			ptr = NULL;
+		}
+	}
 }
 
 
 //////////////////////////// end of viewPurchaseDetails ////////////////////////////
-
-
 
 int main() {
 
@@ -1972,7 +1992,7 @@ MainMenu:
 					cout << "Filter result returned. There are: " << books.lineCount << " of books with the same genre." << endl;
 					cout << endl;
 				}
-				
+
 			}
 			goto InventoryMenu;
 			break;
@@ -1991,7 +2011,7 @@ MainMenu:
 
 	case 2:
 
-		PurchaseMenu: 
+	PurchaseMenu:
 		cout << "*--------------- Purchase Section ---------------*" << endl;
 		cout << "Which section do you want to access:\n1. Add Purchase\n2. View All Purchase\n3. Sort Purchase\n4. View Purchase Detail\n5. Exit" << endl;
 		cout << "Enter choice: ";
@@ -2095,4 +2115,3 @@ MainMenu:
 	}
 }
 
-//place functions after main so can call main function
