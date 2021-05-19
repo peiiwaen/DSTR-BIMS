@@ -112,6 +112,7 @@ void Books::addBooks() {
 	//set new stream, set it to 2 dp, input double/float to stream, change stream to string
   //source code: http://www.cplusplus.com/reference/iomanip/setprecision/
 
+
 	cout << "*--------------- Add New Books --------------*" << endl; // 15s -, front and back 
 
 	//solved. Ref: http://www.cplusplus.com/forum/beginner/39549/ (cin.ignore())
@@ -139,6 +140,7 @@ void Books::addBooks() {
 
 	date = getDate();
 
+	streambP.str("");
 	streambP << fixed << setprecision(2) << bP;
 	string bookPrice = streambP.str();
 	string bookDetail = title + "|" + ISBN + "|" + author + "|" + publisher + "|" + bookPrice + "|" + to_string(stock) + "|" + genre + "|" + getDate();
@@ -448,6 +450,7 @@ void Books::readFromFileToList() {
 
 			lineCount++;
 
+			streambP.str("");
 			streambP << fixed << setprecision(2) << bPs;
 			string bookPrice = streambP.str();
 
@@ -1094,6 +1097,7 @@ void Purchase::addPurchase() {
 
 				//bookPrice
 				pricePerBook = ptr->bP;
+				streamtpPP.str("");
 				streamtpPP << fixed << setprecision(2) << pricePerBook;
 				booksPricePP.push(streamtpPP.str());
 
@@ -1137,6 +1141,7 @@ void Purchase::addPurchase() {
 
 					//bookPrice
 					pricePerBook = ptr->bP;
+					streamtpPP.str("");
 					streamtpPP << fixed << setprecision(2) << pricePerBook;
 					booksPricePP.push(streamtpPP.str());
 
